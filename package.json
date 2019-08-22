@@ -1,0 +1,24 @@
+{
+  "name": "geocoding-sheet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Code.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timkeane/geocoding-sheet.git"
+  },
+  "author": "Tim Keane <t.d.keane@gmail.com> (https://timkeane.github.io/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timkeane/geocoding-sheet/issues"
+  },
+  "homepage": "https://github.com/timkeane/geocoding-sheet#readme",
+  "dependencies": {
+    "jquery": "^3.4.1",
+    "nyc-lib": "^1.3.61",
+    "ol": "^5.3.3"
+  }
+}

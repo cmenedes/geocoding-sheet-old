@@ -11,7 +11,6 @@ function onOpen(event) {
 }
 
 function show() {
-  //hello
   var html = HtmlService.createTemplateFromFile('index').evaluate().setTitle(name);
   SpreadsheetApp.getUi().showSidebar(html);
 }
