@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Geocoder</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.15/proj4.js"></script>
+  <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.4.0/papaparse.min.js"></script>
+  <script src="https://maps.nyc.gov/nyc-lib/v1.3.61/js/babel-polyfill.js"></script>
+  <script src="https://maps.nyc.gov/nyc-lib/v1.3.61/js/nyc-ol-lib.js"></script>
+  <link href="https://maps.nyc.gov/nyc-lib/v1.3.61/css/nyc-ol-lib.css" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #616161;
+    }
+    body * {
+      font-size: 12px !important;
+    }
+    #tabs {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #616161;
+    }
+    .tabs>.btns h2 {
+      width: 50%;
+    }
+    #tab-conf label.conf, #tab-conf input[type="text"] {
+      display: block;
+      width: calc(100% - 10px);
+    }
+    #tab-conf label.conf {
+      color: #fff;
+      font-weight: bold;
+    }
+    #tab-conf input[type="text"] {
+      margin-bottom: 5px;
+    }
+    #geo-fields.chc {
+      width: calc(100% - 3px);
+    }
+    #geo-fields label {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #map {
+      position: absolute;
+      top: 80px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .geoloc {
+      display: none;
+    }
+    .rad-all {
+      border-radius: 0;
+    }
+    #geocode {
+      padding: 0 5px;
+    }
+    #review {
+      width: calc(100% - 81px);
+    }
+    #download {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%22433.5px%22%20height%3D%22433.5px%22%20viewBox%3D%220%200%20433.5%20433.5%22%3E%3Cpath%20style%3D%22fill%3A%23fff%22%20d%3D%22M395.25%2C153h-102V0h-153v153h-102l178.5%2C178.5L395.25%2C153z%20M38.25%2C382.5v51h357v-51H38.25z%22%2F%3E%3C%2Fsvg%3E");      font-size: 20px !important;
+      background-size: 20px;
+      position: fixed;
+      z-index: 2;
+      bottom: 3px;
+      right: 3px;
+      top: auto;
+      left: auto;
+    }
+    .pop .content {
+      max-width: 200px;
+      padding: 0 0 5px 5px;
+    }
+    .pop .content h3 {
+      margin-right: 22px;
+    }
+    .pop button.update {
+      padding: 0 5px;
+    }
+    #on-interv {
+      margin-bottom: 5px;
+    }
+    #geocode, #reset {
+      position: relative;
+      background-color: #efefef;
+    }
+    #geocode:hover, #reset:hover {
+      background-color: #ddd;
+    }
+    #geocode {
+      float: left;
+      margin-right: 5px;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3C%3Fxml%20version%3D%221.0%22%20%3F%3E%3Csvg%20id%3D%22Layer_1%22%20style%3D%22enable-background%3Anew%200%200%2091%2091%3B%22%20version%3D%221.1%22%20viewBox%3D%220%200%2091%2091%22%20xml%3Aspace%3D%22preserve%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cg%3E%3Cpath%20d%3D%22M66.9%2C41.8c0-11.3-9.1-20.4-20.4-20.4c-11.3%2C0-20.4%2C9.1-20.4%2C20.4c0%2C11.3%2C20.4%2C32.4%2C20.4%2C32.4S66.9%2C53.1%2C66.9%2C41.8z%20%20%20%20M37%2C41.4c0-5.2%2C4.3-9.5%2C9.5-9.5c5.2%2C0%2C9.5%2C4.2%2C9.5%2C9.5c0%2C5.2-4.2%2C9.5-9.5%2C9.5C41.3%2C50.9%2C37%2C46.6%2C37%2C41.4z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+      background-size: 37px;
+    }
+    #reset {
+      float: right;
+      margin-right: 1px;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M13.5%202c-5.621%200-10.211%204.443-10.475%2010h-3.025l5%206.625%205-6.625h-2.975c.257-3.351%203.06-6%206.475-6%203.584%200%206.5%202.916%206.5%206.5s-2.916%206.5-6.5%206.5c-1.863%200-3.542-.793-4.728-2.053l-2.427%203.216c1.877%201.754%204.389%202.837%207.155%202.837%205.79%200%2010.5-4.71%2010.5-10.5s-4.71-10.5-10.5-10.5z%22%2F%3E%3C%2Fsvg%3E");
+      background-size: 23px;
+    }
+  </style>
+</head>
+<body>
+  <div id="tabs">
+    <div id="tab-conf">
+      <label class="conf" for="url">Geoclient endpoint</label>
+      <input id="url" class="rad-all" type="text" placeholder="Eg. https://maps.nyc.gov/geoclient/v1">
+      <label class="conf" for="app-id">Geoclient App ID</label>
+      <input id="app-id" class="rad-all" type="text">
+      <label class="conf" for="app-key">Geoclient App Key</label>
+      <input id="app-key" class="rad-all" type="text">
+      <label class="conf" for="template">Geocode-able location definition</label>
+      <input id="template" class="rad-all" type="text" placeholder="Eg. ${AddrCol}, ${CityCol}, ${ZipCol}">
+      <div id="on-interv"></div>
+      <label class="conf" for="geo-fields">Possible Geocoded values to append (if available)</label>
+      <div id="geo-fields"></div>
+    </div>
+    <div id="tab-map">
+      <button id="geocode" class="btn btn-sq rad-all" title="Geocode sheet">
+        <span class="screen-reader-only">Geocode sheet</span>
+      </button>
+      <select id="review" class="btn rad-all">
+        <option value="-1">Review 0 Failures</option>
+      </select>
+      <button id="reset" class="btn btn-sq rad-all" title="Reset map">
+          <span class="screen-reader-only">Reset map</span>
+      </button>
+      <div id="map" class="rad-all"></div>
+      <button id="download" class="btn btn-sq rad-all" title="Download GeoJSON">
+        <span class="screen-reader-only">Download GeoJSON</span>
+      </button>
+    </div>  
+  </div>
+  <script>
+    var PROJECTION = 'EPSG:2263';
+    var POSSIBLE_FIELDS = ['assemblyDistrict', 'atomicPolygon', 'bbl', 'bblBoroughCode', 'bblBoroughCodeIn', 'bblTaxBlock', 'bblTaxBlockIn', 'bblTaxLot', 'bblTaxLotIn', 'bikeLane', 'bikeLane2', 'bikeTrafficDirection', 'blockfaceId', 'boardOfElectionsPreferredLgc', 'boePreferredStreetName', 'boePreferredstreetCode', 'boroughCode1In', 'buildingIdentificationNumber', 'buildingIdentificationNumberIn', 'businessImprovementDistrict', 'censusBlock2000', 'censusBlock2010', 'censusTract1990', 'censusTract2000', 'censusTract2010', 'cityCouncilDistrict', 'civilCourtDistrict', 'coincidentSegmentCount', 'communityDistrict', 'communityDistrictBoroughCode', 'communityDistrictNumber', 'communitySchoolDistrict', 'condominiumBillingBbl', 'congressionalDistrict', 'cooperativeIdNumber', 'cornerCode', 'crossStreetNamesFlagIn', 'dcpCommercialStudyArea', 'dcpPreferredLgc', 'dcpPreferredLgcForStreet1', 'dcpPreferredLgcForStreet2', 'dcpPreferredLgcForStreet3', 'dcpZoningMap', 'dotStreetLightContractorArea', 'dynamicBlock', 'electionDistrict', 'fireBattalion', 'fireCompanyNumber', 'fireCompanyType', 'fireDivision', 'firstBoroughName', 'firstStreetCode', 'firstStreetNameNormalized', 'fromActualSegmentNodeId', 'fromLgc1', 'fromLionNodeId', 'fromNode', 'fromPreferredLgcsFirstSetOf5', 'fromXCoordinate', 'fromYCoordinate', 'generatedRecordFlag', 'genericId', 'geosupportFunctionCode', 'geosupportReturnCode', 'geosupportReturnCode2', 'gi5DigitStreetCode1', 'gi5DigitStreetCode2', 'gi5DigitStreetCode3', 'gi5DigitStreetCode4', 'giBoroughCode1', 'giBoroughCode2', 'giBoroughCode3', 'giBoroughCode4', 'giBuildingIdentificationNumber1', 'giBuildingIdentificationNumber2', 'giBuildingIdentificationNumber3', 'giBuildingIdentificationNumber4', 'giDcpPreferredLgc1', 'giDcpPreferredLgc2', 'giDcpPreferredLgc3', 'giDcpPreferredLgc4', 'giHighHouseNumber1', 'giHighHouseNumber2', 'giHighHouseNumber3', 'giHighHouseNumber4', 'giLowHouseNumber1', 'giLowHouseNumber2', 'giLowHouseNumber3', 'giLowHouseNumber4', 'giSideOfStreetIndicator1', 'giSideOfStreetIndicator2', 'giSideOfStreetIndicator3', 'giSideOfStreetIndicator4', 'giStreetCode1', 'giStreetCode2', 'giStreetCode3', 'giStreetCode4', 'giStreetName1', 'giStreetName2', 'giStreetName3', 'giStreetName4', 'healthArea', 'healthCenterDistrict', 'highBblOfThisBuildingsCondominiumUnits', 'highCrossStreetB5SC1', 'highCrossStreetB5SC2', 'highCrossStreetCode1', 'highCrossStreetName1', 'highHouseNumberOfBlockfaceSortFormat', 'houseNumber', 'houseNumberIn', 'houseNumberSortFormat', 'hurricaneEvacuationZone', 'instructionalRegion', 'interimAssistanceEligibilityIndicator', 'internalLabelXCoordinate', 'internalLabelYCoordinate', 'intersectingStreet1', 'intersectingStreet2', 'latitude', 'latitudeInternalLabel', 'latitudeOfFromIntersection', 'latitudeOfToIntersection', 'leftSegment1990CensusTract', 'leftSegment2000CensusBlock', 'leftSegment2000CensusTract', 'leftSegment2010CensusBlock', 'leftSegment2010CensusTract', 'leftSegmentAssemblyDistrict', 'leftSegmentBlockfaceId', 'leftSegmentBoroughCode', 'leftSegmentCommunityDistrict', 'leftSegmentCommunityDistrictBoroughCode', 'leftSegmentCommunityDistrictNumber', 'leftSegmentCommunitySchoolDistrict', 'leftSegmentDynamicBlock', 'leftSegmentElectionDistrict', 'leftSegmentFireBattalion', 'leftSegmentFireCompanyNumber', 'leftSegmentFireCompanyType', 'leftSegmentFireDivision', 'leftSegmentHealthArea', 'leftSegmentHealthCenterDistrict', 'leftSegmentHighHouseNumber', 'leftSegmentInterimAssistanceEligibilityIndicator', 'leftSegmentLowHouseNumber', 'leftSegmentNta', 'leftSegmentNtaName', 'leftSegmentPolicePatrolBorough', 'leftSegmentPolicePatrolBoroughCommand', 'leftSegmentPolicePrecinct', 'leftSegmentPoliceSector', 'leftSegmentPumaCode', 'leftSegmentZipCode', 'legacyId', 'legacySegmentId', 'lengthOfSegmentInFeet', 'lgc1', 'lionBoroughCode', 'lionBoroughCodeForVanityAddress', 'lionFaceCode', 'lionFaceCodeForVanityAddress', 'lionKey', 'lionKeyForVanityAddress', 'lionNodeNumber', 'lionSequenceNumber', 'lionSequenceNumberForVanityAddress', 'listOf4Lgcs', 'listOfPairsOfLevelCodes', 'longitude', 'longitudeInternalLabel', 'longitudeOfFromIntersection', 'longitudeOfToIntersection', 'lowBblOfThisBuildingsCondominiumUnits', 'lowCrossStreetB5SC1', 'lowCrossStreetCode1', 'lowCrossStreetName1', 'lowHouseNumberOfBlockfaceSortFormat', 'lowHouseNumberOfDefiningAddressRange', 'modeSwitchIn', 'nta', 'ntaName', 'numberOfCrossStreetB5SCsHighAddressEnd', 'numberOfCrossStreetB5SCsLowAddressEnd', 'numberOfCrossStreetsHighAddressEnd', 'numberOfCrossStreetsLowAddressEnd', 'numberOfEntriesInListOfGeographicIdentifiers', 'numberOfExistingStructuresOnLot', 'numberOfIntersectingStreets', 'numberOfParkingLanesOnStreet', 'numberOfParkingLanesOnTheStreet', 'numberOfStreetCodesAndNamesInList', 'numberOfStreetFrontagesOfLot', 'numberOfTotalLanesOnStreet', 'numberOfTotalLanesOnTheStreet', 'numberOfTravelLanesOnStreet', 'numberOfTravelLanesOnTheStreet', 'physicalId', 'policePatrolBoroughCommand', 'policePrecinct', 'policeSector', 'pumaCode', 'returnCode1a', 'returnCode1e', 'rightSegment1990CensusTract', 'rightSegment2000CensusBlock', 'rightSegment2000CensusTract', 'rightSegment2010CensusBlock', 'rightSegment2010CensusTract', 'rightSegmentAssemblyDistrict', 'rightSegmentBlockfaceId', 'rightSegmentBoroughCode', 'rightSegmentCommunityDistrict', 'rightSegmentCommunityDistrictBoroughCode', 'rightSegmentCommunityDistrictNumber', 'rightSegmentCommunitySchoolDistrict', 'rightSegmentDynamicBlock', 'rightSegmentElectionDistrict', 'rightSegmentFireBattalion', 'rightSegmentFireCompanyNumber', 'rightSegmentFireCompanyType', 'rightSegmentFireDivision', 'rightSegmentHealthArea', 'rightSegmentHealthCenterDistrict', 'rightSegmentHighHouseNumber', 'rightSegmentInterimAssistanceEligibilityIndicator', 'rightSegmentLowHouseNumber', 'rightSegmentNta', 'rightSegmentNtaName', 'rightSegmentPolicePatrolBorough', 'rightSegmentPolicePatrolBoroughCommand', 'rightSegmentPolicePrecinct', 'rightSegmentPoliceSector', 'rightSegmentPumaCode', 'rightSegmentZipCode', 'roadwayType', 'rpadBuildingClassificationCode', 'rpadSelfCheckCodeForBbl', 'sanbornBoroughCode', 'sanbornBoroughCode1', 'sanbornBoroughCode2', 'sanbornPageNumber', 'sanbornPageNumber1', 'sanbornPageNumber2', 'sanbornVolumeNumber', 'sanbornVolumeNumber1', 'sanbornVolumeNumber2', 'sanbornVolumeNumberSuffix', 'sanbornVolumeNumberSuffix1', 'sanbornVolumeNumberSuffix2', 'sanitationBulkPickupSchedule', 'sanitationCollectionSchedulingSectionAndSubsection', 'sanitationDistrict', 'sanitationRecyclingCollectionSchedule', 'sanitationRegularCollectionSchedule', 'sanitationSection', 'sanitationSnowPriorityCode', 'secondStreetCode', 'secondStreetNameNormalized', 'segmentAzimuth', 'segmentIdentifier', 'segmentLengthInFeet', 'segmentOrientation', 'segmentTypeCode', 'sideOfStreetIndicator', 'sideOfStreetOfVanityAddress', 'speedLimit', 'splitLowHouseNumber', 'stateSenatorialDistrict', 'streetCode1', 'streetCode2', 'streetCode6', 'streetCode7', 'streetName1', 'streetName1In', 'streetName2', 'streetName2In', 'streetName3In', 'streetName6', 'streetName7', 'streetStatus', 'streetWidth', 'streetWidthMaximum', 'strollingKey', 'strollingKeyBoroughCode', 'strollingKeyHighHouseNumber', 'strollingKeyOnStreetCode', 'strollingKeySideOfStreetIndicator', 'taxMapNumberSectionAndVolume', 'thirdStreetCode', 'thirdStreetNameNormalized', 'toActualSegmentNodeId', 'toLgc1', 'toLionNodeId', 'toNode', 'toPreferredLgcsFirstSetOf5', 'toXCoordinate', 'toYCoordinate', 'trafficDirection', 'underlyingStreetCode', 'uspsPreferredCityName', 'workAreaFormatIndicatorIn', 'xCoordActualSegmentHighAddressEnd', 'xCoordActualSegmentLowAddressEnd', 'xCoordinate', 'xCoordinateHighAddressEnd', 'xCoordinateLowAddressEnd', 'xCoordinateOfCenterofCurvature', 'yCoordActualSegmentHighAddressEnd', 'yCoordActualSegmentLowAddressEnd', 'yCoordinate', 'yCoordinateHighAddressEnd', 'yCoordinateLowAddressEnd', 'yCoordinateOfCenterofCurvature', 'zipCode'];    
+    // var PROJECTION = '';
+    // var POSSIBLE_FIELDS = [];    
+    var dia = new nyc.Dialog(), panels = {}, geoJson = new ol.format.GeoJSON(), save = new nyc.LocalStorage(), popup, conf, map, locationMgr, format, geocoder, geoFields, countDown, geocodedBounds, geocodeAll, onInterval, editInterv;
+
+    function setHeight() {
+      var div = $('#map');
+      if (map) {
+        map.setSize([div.width(), div.height()]);
+      }
+    }
+
+    function update() {
+      var geoclient;
+      if ($('#url').length) {
+        var url = $('#url').val();
+        var id = $('#app-id').val();
+        var key = $('#app-key').val();
+        if (url && id && key) {
+          geoclient = {
+            url: url,
+            id: id,
+            key: key,
+            template: template,
+            requestedFields: requestedFields()
+          };
+        }
+      } else {
+        geoclient = {};
+      }
+      var template = $('#template').val();
+      if (geoclient && template) {
+        conf = {
+          geoclient: geoclient,
+          template: template,
+          requestedFields: requestedFields()
+        };
+        setCookie(conf);
+        setUrl();
+      } else {
+        conf = undefined;
+      }
+    }
+
+    function correctSheet(feature, data) {
+      feature.set('_interactive', true);
+      feature.once('change', geocoded);
+      format.setGeocode(feature, data);
+    }
+
+    function showPopup(data) {
+      var id = $('#review').val();
+      var feature = $('#review option[value="' + id + '"]').data('feature');
+      var failedAddr = feature.get('_geocodeResp').input;
+      var lastSearch = $('.srch-ctl input').data('last-search');
+      if (lastSearch === failedAddr) {
+        var btn = $('<button class="update btn rad-all"></button>')
+          .click(function() {
+            correctSheet(feature, data);
+            popup.hide();
+          }).html('Update row ' + (id * 1 + 1));
+        setTimeout(function() {
+          popup.show({
+            coordinate: data.coordinate,
+            html: $('<div></div>').append('<h3>' + data.name + '</h3>').append(btn)
+          });
+        }, 500);
+      }
+    }
+
+    function setUrl() {
+      if (conf) {
+        if (conf.geoclient.id) {
+          var url = conf.geoclient.url + '/search.json?app_id=' + conf.geoclient.id + '&app_key=' + conf.geoclient.key + '&input=';
+          locationMgr.locator.geocoder.url = url
+          format.geocoder = new nyc.Geoclient({url: url});
+        } else {
+          format.geocoder = new nyc.CensusGeocoder();
+        }
+        format.locationTemplate = conf.template;
+      }
+    }
+
+    function getData(all) {
+      geocodeAll = all;
+      update();
+      if (conf) {
+        google.script.run.withSuccessHandler(gotData).getData();
+      } else if (geocodeAll) {
+        dia.ok({message: 'Please complete the configuration'});
+      }
+    }
+
+    function gotData(data) {
+      var columns = data[0];
+      if (geocodeAll) {
+        countDown = data.length - 1;
+        source.clear();
+        geocodedBounds = null;
+        $('#review').html('<option value="-1">Review 0 Failures</options>');
+       }
+      for (var i = 1; i < data.length; i++) {
+        var feature = source.getFeatureById(i);
+        var row = data[i];
+        var featureSource = {_row_index: i, _columns: columns, _row_data: row};
+        for (var c = 0; c < columns.length; c++) {
+          featureSource[columns[c]] = row[c];
+        }
+        if (doGeocode(featureSource, feature)) {
+          if (feature) source.removeFeature(feature);
+          feature = new ol.Feature(featureSource);
+          feature.setId(i);
+          feature.set('_interactive', !geocodeAll);
+          source.addFeature(feature);
+          feature.once('change', geocoded);
+          format.setGeometry(feature, featureSource);
+        }
+      }
+    }
+
+    function doGeocode(featureSource, feature) {
+      if (feature) {
+        var oldInput = feature.get('_input');
+        var newInput = format.replace(format.locationTemplate, featureSource);
+        return oldInput !== newInput;
+      }
+      return true;
+    }
+
+    function requestedFields() {
+      var fields = [];
+      if (geoFields) {
+        var checked = geoFields.val();
+        for (var i = 0; i < checked.length; i++) {
+          fields.push(checked[i].values[0]);
+        }
+      }
+      return fields;
+    }
+
+    function projected(data, coords) {
+      if (PROJECTION) {
+        var xy = proj4('EPSG:3857', PROJECTION, coords);
+        data.x = xy[0];
+        data.y = xy[1];
+      }
+    }
+
+    function errorCount() {
+      var msgOpt = $('#review>option:first-of-type');
+      var msgHtml = msgOpt.html().split(' ');
+      msgHtml[1] = $('#review option').length - 1;
+      msgOpt.html(msgHtml.join(' '));
+    }
+
+    function geocoded(event) {
+      var feature = event.target;
+      var data = {
+        projected: PROJECTION && PROJECTION.length,
+        row: feature.get('_row_index'),
+        columns: feature.get('_columns'),
+        cells: feature.get('_row_data'),
+        geocodeResp: feature.get('_geocodeResp'),
+        requestedFields: requestedFields(),
+        interactive: feature.get('_interactive')
+      };
+      var geom = feature.getGeometry();
+      var id = feature.getId();
+      if (geocodeAll) countDown--;
+      if (geom) {
+        var ext = geom.getExtent();
+        var coords = geom.getCoordinates();
+        var ll = proj4('EPSG:3857', 'EPSG:4326', coords);
+        data.lat = ll[0];
+        data.lng = ll[1];
+        projected(data, coords);
+        geocodedBounds = geocodedBounds ? ol.extent.extend(geocodedBounds, ext) : ext;
+        $('#review option[value="' + id + '"]').remove();
+      } else {
+        if (data.geocodeResp && data.geocodeResp.possible) {
+          var result = data.geocodeResp;
+          var opt = $('#review option[value="' + id + '"]');
+          var row = id + 1;
+          var optHtml = '(' + row + ') ' + result.input;
+          if (!opt.length) {
+            $('#review').append(
+              $('<option></option>').data('feature', feature)
+                .html(optHtml)
+                .attr('title', 'Row ' + row).val(id)
+            );
+          } else {
+            opt.html(optHtml);
+          }
+        }
+      }
+      errorCount();          
+      if (geocodeAll && countDown === 0) {
+        geocodeAll = false;
+        map.getView().fit(geocodedBounds, {size: map.getSize(), duration: 500});
+      }
+      google.script.run.withSuccessHandler(function(data) {
+        var columns = data.columns;
+        for (var i = 0; i < columns.length; i++) {
+          feature.set(columns[i], data.cells[i]);
+        }
+      }).geocoded(data);
+    }
+
+    function addLayer() {
+      format = new nyc.ol.format.CsvAddr({});
+      source = new ol.source.Vector();
+      map.addLayer(new ol.layer.Vector({
+        source: source,
+        style: function(feature, resolution) {
+          return new ol.style.Style({
+            image: new ol.style.Circle({
+              radius: 10,
+              stroke: new ol.style.Stroke({color: '#000', width: 2}),
+              fill: new ol.style.Fill({color: 'rgba(255,255,255,.5)'})
+            }),
+            text: new ol.style.Text({
+              text: feature.getId() + 1 + '',
+              font: 'bold 15px sans-serif',
+              fill: new ol.style.Fill({color: '#000'})
+            })
+          })
+        }
+      }));
+    }
+
+    function review() {
+      var feature = source.getFeatureById($('#review').val());
+      if (feature) {
+        var resp = feature.get('_geocodeResp');
+        $('.srch-ctl input').val(resp.input).data('last-search', resp.input);
+        $('.srch-ctl .btn-srch').trigger('click');
+      }
+    }
+    
+    function setCookie(conf) {
+      var today = new Date();
+      var expire = new Date();
+      expire.setDate(today.getDate() + 365);
+      document.cookie = 'nyc-geocode-sheet=' + JSON.stringify(conf) + '; expires=' + expire.toGMTString();
+    }
+    
+    function getCookie() {
+      var it = 'nyc-geocode-sheet=';
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.indexOf(it) === 0) {
+          var conf = JSON.parse(cookie.substr(it.length, cookie.length));
+          var requestedFieldChoices = [];
+          if (conf.geoclient) {
+            $('#url').val(conf.geoclient.url);
+            $('#app-id').val(conf.geoclient.id);
+            $('#app-key').val(conf.geoclient.key);
+          }
+          $('#template').val(conf.template);
+          for (var f = 0; f < conf.requestedFields.length; f++) {
+            var field = conf.requestedFields[f];
+            for (var c = 0; c < geoFields.choices.length; c++) {
+              var choice = geoFields.choices[c];
+              if (field === choice.name) {
+                requestedFieldChoices.push(choice);
+              }
+            }
+          }
+          if (geoFields) geoFields.val(requestedFieldChoices);
+        }
+      }
+    }
+  
+    function getFeatures() {
+      var result = [];
+      var features = source.getFeatures();
+      for (var i = 0; i < features.length; i++) {
+        var props = features[i].getProperties();
+        props.SHEET_ROW_NUM = props._row_index + 1;
+        delete props.X;
+        delete props.Y;
+        delete props.LNG;
+        delete props.LAT;
+        delete props._input;
+        delete props._geocodeResp;
+        delete props._row_index;
+        delete props._columns;
+        delete props._row_data;
+        delete props._source;
+        var feature = new ol.Feature(props);
+        feature.setGeometry(feature.getGeometry());
+        result.push(feature);
+      }
+      return result;
+    }
+
+    function download() {
+      var features = getFeatures();
+      var options = {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'};
+      save.saveGeoJson('geocoded.json', geoJson.writeFeatures(features, options));
+    }
+
+    $(document).ready(function() {
+      
+      if (PROJECTION === 'EPSG:2263') {
+        map = new nyc.ol.Basemap({target: 'map'});
+        geocoder = new nyc.Geoclient({});
+      } else {
+        map = new ol.Map({
+          target: 'map',
+          view: new ol.View({
+            center: nyc.ol.Basemap.CENTER,
+            zoom: 10
+          }),
+          layers: [new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })]
+        });        
+        geocoder = new nyc.CensusGeocoder();
+      }
+
+      popup = new nyc.ol.Popup({map: map});
+
+      locationMgr = new nyc.ol.LocationMgr({
+        map: map,
+        geocoder: geocoder
+      });
+      locationMgr.on('geocoded', showPopup);
+     
+      $('.pop .btn-x').click(function() {
+        $('#review').trigger('change');
+      });
+      
+      addLayer();
+
+      $('#geocode').click(function() {
+        getData(true);
+      });
+      $('#reset').click(function() {
+        source.clear();
+      });
+      $('#review').change(review);
+      $('#download').click(download);
+      $('#conf input').keyup(update);
+
+      onInterval = new nyc.Choice({
+        target: '#on-interv',
+        choices: [{name: 'on-interv', label: 'Geocode on interval', values: [1]}]
+      });
+      onInterval.on('change', function() {
+        if (onInterval.val().length) {
+          editInterv = setInterval(function() {
+            if (!geocodeAll) getData(false);
+          }, 3000);
+        } else {
+          clearInterval(editInterv);
+        }
+      });
+
+      var choices = [];
+      for (var i = 0; i < POSSIBLE_FIELDS.length; i++) {
+        var field = POSSIBLE_FIELDS[i];
+        choices.push({name: field, label: field, values: [field]});
+      }
+
+      if (choices.length) {
+        geoFields = new nyc.Choice({
+          target: '#geo-fields',
+          choices: choices
+        });
+        $('#geo-fields label').each(function() {
+          this.title = this.innerHTML;
+        });
+        geoFields.on('change', update);
+      } else {
+        $('#geo-fields, label[for="geo-fields"]').hide();
+      }
+      
+      tabs = new nyc.Tabs({
+        target: '#tabs',
+        tabs: [
+          {tab: '#tab-conf', title: 'Configuration', active: true},
+          {tab: '#tab-map', title: 'Map'}
+        ]
+      });
+
+      $(window).resize(setHeight);
+      tabs.on('change', setHeight);
+
+      getCookie();
+      
+      update();
+      if (conf) tabs.open('#tab-map');
+    });
+  </script>
+</body>
+</html>
