@@ -79,7 +79,7 @@ class App {
     })
     $('#review').change($.proxy(this.review, this))
     $('#download').click($.proxy(this.download, this))
-    $('#conf input').keyup($.proxy(this.update, this))
+    $('#tab-conf input').keyup($.proxy(this.update, this))
     $('.pop .btn-x').click(() => {$('#review').trigger('change')})
     this.sheetGeocoder.on('geocoded', event => {
       $(`#review option[value="${event.feature.getId()}"]`).remove()
@@ -172,10 +172,10 @@ const HTML = `<div id="tabs">
     <div id="on-interv"></div>
     <label class="conf gc" for="url">Geoclient endpoint</label>
     <input id="url" class="rad-all gc" type="text" placeholder="Eg. https://maps.nyc.gov/geoclient/v1">
-    <label class="conf gc" for="app-id">Geoclient App ID</label>
-    <input id="app-id" class="rad-all gc" type="text">
-    <label class="conf gc" for="app-key">Geoclient App Key</label>
-    <input id="app-key" class="rad-all gc" type="text">
+    <label class="conf gc" for="id">Geoclient App ID</label>
+    <input id="id" class="rad-all gc" type="text">
+    <label class="conf gc" for="key">Geoclient App Key</label>
+    <input id="key" class="rad-all gc" type="text">
     <label class="conf gc" for="geo-fields">Possible Geocoded values to append (if available)</label>
     <div id="geo-fields" class="gc"></div>
   </div>
