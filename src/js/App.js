@@ -102,8 +102,8 @@ class App {
     if (nyc) {
       $('.gc').show()
       Conf.set('url', $('#url').val())
-      Conf.set('id', $('#app-id').val())
-      Conf.set('key', $('#app-key').val())
+      Conf.set('id', $('#id').val())
+      Conf.set('key', $('#key').val())
     } else {
       $('.gc').hide()
     }
