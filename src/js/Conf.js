@@ -1,7 +1,7 @@
 const COOKIE = 'geocoding-sheet'
 
-let conf = {
-  nyc: false,
+const conf = {
+  nyc: true,
   url: '',
   id: '',
   key: '',
@@ -20,7 +20,17 @@ const get = (key) => {
 }
 
 const valid = () => {
-  return nyc ? url.trim() && id.trim() && key.trim() && template.trim() : template.trim() !== ''
+  let result = false
+  if (conf.nyc) {
+    result = conf.url.trim() !== '' && 
+    conf.id.trim() !== '' && 
+    conf.key.trim() !== '' && 
+    conf.template.trim() !== ''
+  } else {
+    result = conf.template.trim() !== ''
+  }
+  console.warn(conf);
+  return result
 }
 
 const saveToCookie = () => {
@@ -30,16 +40,20 @@ const saveToCookie = () => {
   document.cookie = `${COOKIE}=${JSON.stringify(conf)}; expires=${expire.toGMTString()}`
 }
 
-const getFromCookie = () => {
+const getSaved = () => {
   const it = `${COOKIE}=`
   const cookies = document.cookie.split(';')
   cookies.forEach(cookie => {
     cookie = cookie.trim();
     if (cookie.indexOf(it) === 0) {
-      conf = JSON.parse(cookie.substr(it.length, cookie.length))
+      const savedConf = JSON.parse(cookie.substr(it.length, cookie.length))
+      Object.keys(savedConf).forEach(key => {
+        conf[key] = savedConf[key]
+      })
     }
   })
+  console.warn(conf);
   return conf
 }
 
-export default {get, set, valid, getFromCookie}
+export default {get, set, valid, getSaved}

@@ -7,7 +7,8 @@
     "test": "jest",
     "build": "webpack",
     "prebuild": "yarn test && yarn roll-css",
-    "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css"
+    "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css",
+    "postbuild": "node pkg-addon"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
     "canvas-prebuilt": "1.6.11",
+    "copy-webpack-plugin": "^5.0.4",
     "coveralls": "^3.0.4",
     "jest": "^24.8.0",
     "jest-fetch-mock": "^1.6.5",

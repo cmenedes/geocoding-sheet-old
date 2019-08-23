@@ -1,4 +1,4 @@
-import App from "../js/App";
+import App from "../src/js/App";
 
 test('constructor', () => {
   expect.assertions(1)

@@ -61,3 +61,6 @@ typings/
 .next
 
 .clasp.json
+
+gcp/index.html
+gcp/Code.js
