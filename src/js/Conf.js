@@ -29,7 +29,6 @@ const valid = () => {
   } else {
     result = conf.template.trim() !== ''
   }
-  console.warn(conf);
   return result
 }
 
@@ -37,7 +36,6 @@ const saveToCookie = () => {
   const today = new Date()
   const expire = new Date()
   expire.setDate(today.getDate() + 365)
-  console.warn('saving',`${COOKIE}=${JSON.stringify(conf)}; expires=${expire.toGMTString()}`);
   document.cookie = `${COOKIE}=${JSON.stringify(conf)}; expires=${expire.toGMTString()}`
 }
 
@@ -48,13 +46,11 @@ const getSaved = () => {
     cookie = cookie.trim();
     if (cookie.indexOf(it) === 0) {
       const savedConf = JSON.parse(cookie.substr(it.length, cookie.length))
-      console.warn('fromcookie',savedConf);
       Object.keys(savedConf).forEach(key => {
         conf[key] = savedConf[key]
       })
     }
   })
-  console.warn('reconstituting',conf);
   return conf
 }
 

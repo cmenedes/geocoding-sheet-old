@@ -63,7 +63,6 @@ class App {
     this.geoFields.val(fields)
     Object.keys(conf).forEach(key => {
       $(`#${key}`).val(conf[key])
-      console.warn(key,conf[key],$(`#${key}`));
     })
     this.geoApi.val(conf.nyc ? [API_CHOICES[0]] : [API_CHOICES[1]])
   }
