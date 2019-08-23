@@ -1,6 +1,5 @@
-import CsvAddr from 'nyc-lib/nyc/ol/format/CsvAddr'
-import Source from 'ol/vector/Source'
-import Layer from 'ol/vector/Layer'
+import Source from 'ol/source/Vector'
+import Layer from 'ol/layer/Vector'
 import Style from 'ol/style/Style'
 import Circle from 'ol/style/Circle'
 import Stroke from 'ol/style/Stroke'
@@ -9,7 +8,7 @@ import Text from 'ol/style/Text'
 import nycOl from 'nyc-lib/nyc/ol'
 
 const style = (feature, resolution) => {
-  const zoom = nycOl.getZForResolution(resolution)
+  const zoom = nycOl.TILE_GRID.getZForResolution(resolution)
   const text = feature.getId() + 1 + ''
   const fontSize = text.length > 2 ? zoom * .8 : zoom * 1.2
   const fontWeight = text.length > 2 ? 'bold' : zoom * ''
