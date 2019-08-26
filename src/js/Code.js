@@ -85,7 +85,7 @@ function setFields(sheet, row, cols, data) {
 
 function geocoded(data) {
   var row = data.row + 1
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet()
+  var sheet = SpreadsheetApp.getActiveSheet()
   var cols = geoCols(sheet, data)
   if (!isNaN(data.lng)) {
     sheet.getRange(row, cols.name).setValue(data.geocodeResp.name)
