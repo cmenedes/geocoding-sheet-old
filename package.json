@@ -4,6 +4,7 @@
   "description": "",
   "main": "Code.js",
   "scripts": {
+    "clasp-push": "./clasp-push.sh",
     "test": "jest",
     "build": "webpack",
     "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
@@ -62,7 +63,7 @@
   "config": {
     "ghooks": {
       "pre-commit": "yarn test",
-      "pre-push": "yarn build && clasp-push.sh"
+      "pre-push": "yarn build && yarn clasp-push"
     }
   }
 }
