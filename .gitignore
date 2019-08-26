@@ -63,4 +63,4 @@ typings/
 .clasp.json
 
 gcp/index.html
-gcp/Code.js
+gcp/Code.gs

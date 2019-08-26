@@ -7,6 +7,6 @@ let html = fs.readFileSync(path.resolve(__dirname, 'dist/index.html'), {encoding
 html = html.replace(/\/\*style\*\//, css)
 html = html.replace(/\/\*polyfill\*\//, polyfill)
 html = html.replace(/\/\*script\*\//, js)
-html = html.replace(/<!--version-->/, `<!--v${require('./package.json').version}-->`)
+html = html.replace(/<!--version-->/, `v${require('./package.json').version}`)
 fs.writeFileSync(path.resolve(__dirname, 'gcp/index.html'), html, {encoding: 'utf-8'})
 fs.copyFileSync(path.resolve(__dirname, 'src/js/Code.js'), path.resolve(__dirname, 'gcp/Code.gs'))
