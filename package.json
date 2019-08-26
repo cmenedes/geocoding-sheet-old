@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "webpack",
-    "prebuild": "rm ./gcp/Code.gs && rm ./gcp/index.html && yarn test && yarn roll-css",
+    "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
     "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css",
     "postbuild": "node pkg-addon"
   },
@@ -62,7 +62,7 @@
   "config": {
     "ghooks": {
       "pre-commit": "yarn test",
-      "pre-push": "yarn build && ./clasp-push.sh"
+      "pre-push": "yarn build && clasp-push.sh"
     }
   }
 }
