@@ -71,7 +71,7 @@ class App {
     me.geoFields.on('change', this.update, this)
     me.geoApi.on('change', this.update, this)
     $('#geocode').click(() => {
-      me.getData(true)
+      me.sheetGeocoder.getData(true)
     })
     $('#reset').click(function() {
       me.geocoder.clear()
