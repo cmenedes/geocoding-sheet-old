@@ -6,5 +6,5 @@ PACKAGE_VERSION=$(cat package.json \
   | sed 's/[",]//g' \
   | tr -d '[[:space:]]')
 echo "Tagging Version $PACKAGE_VERSION"
-#git tag "v$PACKAGE_VERSION"
-#git push origin "v$PACKAGE_VERSION"
+git tag "v$PACKAGE_VERSION"
+git push origin "v$PACKAGE_VERSION"
