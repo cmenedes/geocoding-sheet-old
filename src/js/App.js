@@ -18,11 +18,12 @@ class App {
     $('body').html(HTML)
     this.geoclient = new Geoclient({url: this.geoclientUrl()})
     this.census = new CensusGeocoder()
-    this.map = new Basemap({target: 'map', layers: [layer]})
+    this.map = new Basemap({target: 'map'})
     this.base = this.map.getBaseLayers().base
     this.label = this.map.getBaseLayers().labels.base
     this.osm = new TileLayer({source: new OSM(), visible: false})
     this.map.addLayer(this.osm)
+    this.map.addLayer(layer)
     this.popup = new Popup({map: this.map})
     this.sheetGeocoder = new SheetGeocoder({source: layer.source})
     this.locationMgr = new LocationMgr({map: this.map, geocoder: this.census})
