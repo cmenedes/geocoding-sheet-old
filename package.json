@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "webpack",
-    "prebuild": "yarn test && yarn roll-css",
+    "prebuild": "rm ./gcp/Code.gs && rm ./gcp/index.html && yarn test && yarn roll-css",
     "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css",
     "postbuild": "node pkg-addon"
   },
@@ -36,6 +36,7 @@
     "canvas-prebuilt": "1.6.11",
     "copy-webpack-plugin": "^5.0.4",
     "coveralls": "^3.0.4",
+    "ghooks": "^2.0.4",
     "jest": "^24.8.0",
     "jest-fetch-mock": "^1.6.5",
     "nyc-build-helper": "^0.0.34",
@@ -57,5 +58,12 @@
       "./__tests__/jest-setup.js"
     ],
     "transformIgnorePatterns": []
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "yarn test",
+      "pre-push": "yarn build",
+      "post-push": "./gcp-addon.sh"
+    }
   }
 }

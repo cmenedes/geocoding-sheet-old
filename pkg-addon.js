@@ -7,4 +7,4 @@ let html = fs.readFileSync(path.resolve(__dirname, 'dist/index.html'), {encoding
 html = html.replace(/<!--style-->/, `<style>${css}</style>`)
 html = html.replace(/<!--script-->/, `<script>${js}</script>`)
 fs.writeFileSync(path.resolve(__dirname, 'gcp/index.html'), html, {encoding: 'utf-8'})
-fs.copyFileSync(path.resolve(__dirname, 'dist/js/Code.js'), path.resolve(__dirname, 'gcp/Code.js'))
+fs.copyFileSync(path.resolve(__dirname, 'src/js/Code.js'), path.resolve(__dirname, 'gcp/Code.gs'))
