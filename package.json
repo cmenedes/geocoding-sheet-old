@@ -1,10 +1,10 @@
 {
   "name": "geocoding-sheet",
-  "version": "13",
+  "version": "1.1.1",
   "description": "",
   "main": "",
   "scripts": {
-    "predeploy" : "yarn build && ./tag.sh",
+    "predeploy": "yarn build && ./tag.sh",
     "deploy": "./clasp-deploy.sh",
     "push": "./clasp-push.sh",
     "test": "jest",
