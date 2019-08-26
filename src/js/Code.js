@@ -1,3 +1,4 @@
+/*version*/
 var NAME = 'Geocoder';
 var ERROR_COLOR = '#FFA500'
 var CORRECTED_COLOR = '#ADFF2F'

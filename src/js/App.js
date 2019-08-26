@@ -75,7 +75,7 @@ class App {
       me.sheetGeocoder.getData(true)
     })
     $('#reset').click(function() {
-      me.geocoder.clear()
+      me.sheetGeocoder.clear()
     })
     $('#review').change($.proxy(this.review, this))
     $('#download').click($.proxy(this.download, this))
