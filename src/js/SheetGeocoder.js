@@ -31,17 +31,12 @@ class SheetGeocoder extends EventHandling {
     return true
   }
   getData(all) {
-    geocodeAll = all
-    update()
-    if (conf.valid()) {
-      google.script.run.withSuccessHandler($.proxy(this.gotData, this)).getData()
-    } else if (geocodeAll) {
-      this.dialog.ok({message: 'Please complete the configuration'})
-    }
+    this.geocodeAll = all
+    google.script.run.withSuccessHandler($.proxy(this.gotData, this)).getData()
   }
   gotData(data) {
     const columns = data[0]
-    if (geocodeAll) {
+    if (this.geocodeAll) {
       this.countDown = data.length - 1
       this.source.clear()
       this.geocodedBounds = null
@@ -58,7 +53,7 @@ class SheetGeocoder extends EventHandling {
       if (feature) source.removeFeature(feature)
         feature = new ol.Feature(featureSource)
         feature.setId(i)
-        feature.set('_interactive', !geocodeAll)
+        feature.set('_interactive', !this.geocodeAll)
         source.addFeature(feature)
         feature.once('change', geocoded)
         format.setGeometry(feature, featureSource)
@@ -78,7 +73,7 @@ class SheetGeocoder extends EventHandling {
       requestedFields: this.requestedFields,
       interactive: feature.get('_interactive')
     }
-    if (geocodeAll) this.countDown--
+    if (this.geocodeAll) this.countDown--
     if (geom) {
       const ext = geom.getExtent()
       const coords = geom.getCoordinates()

@@ -20,6 +20,7 @@ class App {
     this.census = new CensusGeocoder()
     this.map = new Basemap({target: 'map', layers: [layer]})
     this.base = this.map.getBaseLayers().base
+    this.label = this.map.getBaseLayers().labels.base
     this.osm = new TileLayer({source: new OSM(), visible: false})
     this.map.addLayer(this.osm)
     this.popup = new Popup({map: this.map})
@@ -114,6 +115,7 @@ class App {
   setup() {
     const nyc = Conf.get('nyc')
     this.base.setVisible(nyc)
+    this.label.setVisible(nyc)
     this.osm.setVisible(!nyc)
     if (Conf.valid()) {
       this.sheetGeocoder.clear()
