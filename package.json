@@ -2,7 +2,7 @@
   "name": "geocoding-sheet",
   "version": "8",
   "description": "",
-  "main": "Code.js",
+  "main": "",
   "scripts": {
     "predeploy" : "yarn build && ./tag.sh",
     "deploy": "./clasp-deploy.sh",
