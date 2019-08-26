@@ -1,10 +1,12 @@
 {
   "name": "geocoding-sheet",
-  "version": "1.0.0",
+  "version": "6",
   "description": "",
   "main": "Code.js",
   "scripts": {
-    "clasp-push": "./clasp-push.sh",
+    "predeploy" : "yarn build && ./tag.sh",
+    "deploy": "./clasp-deploy.sh",
+    "push": "./clasp-push.sh",
     "test": "jest",
     "build": "webpack",
     "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
@@ -63,7 +65,7 @@
   "config": {
     "ghooks": {
       "pre-commit": "yarn test",
-      "pre-push": "yarn build && yarn clasp-push"
+      "pre-push": "yarn build && yarn push"
     }
   }
 }
