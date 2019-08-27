@@ -103,7 +103,7 @@ test('getSaved', () => {
 })
 
 test('saveToCookie', () => {
-  expect.assertions(1)
+  expect.assertions(2)
 
   const mockDoc = {cookie: 'oreo=a-kind-of-cookie; expires=whenever;'}
 
@@ -120,5 +120,11 @@ test('saveToCookie', () => {
   const expectedCookie = `geocoding-sheet={"nyc":false,"url":"a-mock-url","id":"a-mock-id","key":"a-mock-key","template":"a-mock-template","requestedFields":["a-mock-field"]}; expires=${expire.toGMTString()}`
   const conf = Conf.saveToCookie(mockDoc)
 
+  expect(mockDoc.cookie).toBe(expectedCookie)
+
+  //make conf invalid
+  Conf.set('template', '')
+  Conf.saveToCookie(mockDoc)
+  //cookie is unchanged
   expect(mockDoc.cookie).toBe(expectedCookie)
 })

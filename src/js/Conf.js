@@ -12,7 +12,7 @@ const config = {
 const conf = {
   set(key, val) {
     config[key] = val
-    if (conf.valid()) conf.saveToCookie(document)
+    conf.saveToCookie(document)
   },
   get(key) {
     if (key) return config[key]
@@ -46,10 +46,12 @@ const conf = {
     return config
   },
   saveToCookie(doc) {
-    const today = new Date()
-    const expire = new Date()
-    expire.setDate(today.getDate() + 365)
-    doc.cookie = `${COOKIE}=${JSON.stringify(config)}; expires=${expire.toGMTString()}`
+    if (conf.valid()) {
+      const today = new Date()
+      const expire = new Date()
+      expire.setDate(today.getDate() + 365)
+      doc.cookie = `${COOKIE}=${JSON.stringify(config)}; expires=${expire.toGMTString()}`
+    }
   }
 }
 
