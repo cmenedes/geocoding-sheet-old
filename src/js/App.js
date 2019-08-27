@@ -126,9 +126,10 @@ class App {
     new LocalStorage().saveGeoJson('geocoded.json', new GeoJSON().writeFeatures(download, options))
   }
   correctSheet(feature, data) {
+    const geocoder = this.sheetGeocoder
     feature.set('_interactive', true)
-    feature.once('change', geocoded)
-    this.sheetGeocoder.format.setGeocode(feature, data)
+    feature.once('change', geocoder.geocoded, geocoder)
+    geocoder.format.setGeocode(feature, data)
   }
   setMapSize() {
     const div = $('#map')

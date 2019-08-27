@@ -545,3 +545,26 @@ beforeEach(() => {
     expect(LocalStorage.prototype.saveGeoJson.mock.calls[0][1]).toBe('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-74.00798211500157,40.70865852585652]},"properties":{"SHEET_ROW_NUM":1}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.99324626841947,40.75981806867506]},"properties":{"SHEET_ROW_NUM":2}}]}')
   })
 })
+
+test('correctSheet', () => {
+  expect.assertions(7)
+
+  const feature = new Feature()
+  const data = {}
+  const app = new App()
+
+  app.sheetGeocoder.format = {setGeocode: jest.fn()}
+  app.sheetGeocoder.geocoded = jest.fn()
+
+  app.correctSheet(feature, data)
+
+  expect(feature.get('_interactive')).toBe(true)
+  expect(app.sheetGeocoder.format.setGeocode).toHaveBeenCalledTimes(1)
+  expect(app.sheetGeocoder.format.setGeocode.mock.calls[0][0]).toBe(feature)
+  expect(app.sheetGeocoder.format.setGeocode.mock.calls[0][1]).toBe(data)
+
+  feature.dispatchEvent('change')
+  expect(app.sheetGeocoder.geocoded).toHaveBeenCalledTimes(1)
+  expect(app.sheetGeocoder.geocoded.mock.calls[0][0].type).toBe('change')
+  expect(app.sheetGeocoder.geocoded.mock.calls[0][0].target).toBe(feature)
+})

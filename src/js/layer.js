@@ -26,8 +26,6 @@ const style = (feature, resolution) => {
   })
 }
 
-const layer = new Layer({source: new Source(), style: style})
-
-//console.warn(layer.getSource())
+const layer = new Layer({source: new Source(), style})
 
 export default layer
