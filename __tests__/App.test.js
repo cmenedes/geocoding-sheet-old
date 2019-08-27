@@ -1,4 +1,5 @@
 import App from '../src/js/App'
+import LocalStorage from 'nyc-lib/nyc/LocalStorage'
 import Tabs from 'nyc-lib/nyc/Tabs'
 import Choice from 'nyc-lib/nyc/Choice'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
@@ -9,8 +10,9 @@ import Popup from 'nyc-lib/nyc/ol/Popup'
 import SheetGeocoder from '../src/js/SheetGeocoder'
 import Conf from '../src/js/Conf'
 import layer from '../src/js/layer'
-import Feature from 'ol/Feature';
-import ol from 'nyc-lib/nyc/ol';
+import Feature from 'ol/Feature'
+import Point from 'ol/geom/Point'
+import proj4 from 'proj4'
 
 const confNyc = {
   nyc: true,
@@ -85,7 +87,7 @@ describe('constructor', () => {
     expect(app.popup instanceof Popup).toBe(true)
     
     expect(app.sheetGeocoder instanceof SheetGeocoder).toBe(true)
-    expect(app.sheetGeocoder.source).toBe(layer.source)
+    expect(app.sheetGeocoder.source).toBe(layer.getSource())
     
     expect(app.locationMgr instanceof LocationMgr).toBe(true)
     expect(app.locationMgr.locator.geocoder).toBe(app.census)
@@ -514,5 +516,32 @@ describe('review', () => {
     expect($('.srch-ctl input').val()).toBe('')
     expect($('.srch-ctl input').data('last-search')).toBeUndefined()
     expect(app.locationMgr.locator.geocoder.search).toHaveBeenCalledTimes(0)
+  })
+})
+
+describe('download', () => {
+  const saveGeoJson = LocalStorage.prototype.saveGeoJson
+  const f0 = new Feature({_row_index: 0, X: 982037, Y: 197460, LNG: 40.70865853, LAT: -74.00798212, _input: '59 maiden', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
+  const f1 = new Feature({_row_index: 1, X: 986121, Y: 216099, LNG: 40.75981807, LAT: -73.99324627, _input: '433 w43, mn', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
+beforeEach(() => {
+    f0.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f0.get('X'), f0.get('Y')])))
+    f1.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f1.get('X'), f1.get('Y')])))
+    LocalStorage.prototype.saveGeoJson = jest.fn()
+  })
+  afterEach(() => {
+    LocalStorage.prototype.saveGeoJson = saveGeoJson
+  })
+
+  test('download', () => {
+    expect.assertions(3)
+
+    const app = new App()
+    layer.getSource().addFeatures([f0, f1])
+
+    app.download()
+
+    expect(LocalStorage.prototype.saveGeoJson).toHaveBeenCalledTimes(1)
+    expect(LocalStorage.prototype.saveGeoJson.mock.calls[0][0]).toBe('geocoded.json')
+    expect(LocalStorage.prototype.saveGeoJson.mock.calls[0][1]).toBe('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-74.00798211500157,40.70865852585652]},"properties":{"SHEET_ROW_NUM":1}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.99324626841947,40.75981806867506]},"properties":{"SHEET_ROW_NUM":2}}]}')
   })
 })

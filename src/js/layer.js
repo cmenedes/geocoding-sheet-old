@@ -19,14 +19,15 @@ const style = (feature, resolution) => {
       fill: new Fill({color: 'rgba(255,255,255,.5)'})
     }),
     text: new Text({
-      text: test,
+      text: text,
       font: `${fontWeight} ${fontSize}px sans-serif`,
       fill: new Fill({color: '#000'})
     })
   })
 }
 
-const source = new Source()
-const layer = new Layer({source, style})
+const layer = new Layer({source: new Source(), style: style})
+
+//console.warn(layer.getSource())
 
 export default layer

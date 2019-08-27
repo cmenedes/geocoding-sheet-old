@@ -8,10 +8,12 @@ import Popup from 'nyc-lib/nyc/ol/Popup'
 import Tabs from 'nyc-lib/nyc/Tabs'
 import Choice from 'nyc-lib/nyc/Choice'
 import OSM from 'ol/source/OSM'
+import GeoJSON from 'ol/format/GeoJSON'
 import TileLayer from 'ol/layer/Tile'
-import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder';
-import Geoclient from 'nyc-lib/nyc/Geoclient';
-import LocalStorage from 'nyc-lib/nyc/LocalStorage';
+import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
+import Geoclient from 'nyc-lib/nyc/Geoclient'
+import LocalStorage from 'nyc-lib/nyc/LocalStorage'
+import Feature from 'ol/Feature'
 
 class App {
   constructor() {
@@ -26,7 +28,7 @@ class App {
     this.map.addLayer(this.osm)
     this.map.addLayer(layer)
     this.popup = new Popup({map: this.map})
-    this.sheetGeocoder = new SheetGeocoder({source: layer.source})
+    this.sheetGeocoder = new SheetGeocoder({source: layer.getSource()})
     this.locationMgr = new LocationMgr({map: this.map, geocoder: this.census})
     this.geoApi = new Choice({
       target: '#geo-api',
@@ -102,7 +104,7 @@ class App {
   }
   download() {
     const download = []
-    const features = layer.source.getFeatures()
+    const features = layer.getSource().getFeatures()
     features.forEach(f => {
       const props = f.getProperties()
       props.SHEET_ROW_NUM = props._row_index + 1
@@ -116,12 +118,12 @@ class App {
       delete props._columns
       delete props._row_data
       delete props._source
-      const feature = new ol.Feature(props)
+      const feature = new Feature(props)
       feature.setGeometry(feature.getGeometry())
       download.push(feature)
     })
     const options = {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'}
-    new LocalStorage().saveGeoJson('geocoded.json', geoJson.writeFeatures(download, options))
+    new LocalStorage().saveGeoJson('geocoded.json', new GeoJSON().writeFeatures(download, options))
   }
   correctSheet(feature, data) {
     feature.set('_interactive', true)
