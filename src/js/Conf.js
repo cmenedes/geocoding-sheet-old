@@ -1,6 +1,6 @@
 const COOKIE = 'geocoding-sheet'
 
-const conf = {
+const config = {
   nyc: true,
   url: '',
   id: '',
@@ -9,49 +9,48 @@ const conf = {
   requestedFields: []
 }
 
-const set = (key, val) => {
-  if (key) conf[key] = val
-  if (valid()) saveToCookie()
-}
-
-const get = (key) => {
-  if (key) return conf[key]
-  return conf
-}
-
-const valid = () => {
-  let result = false
-  if (conf.nyc) {
-    result = conf.url.trim() !== '' && 
-    conf.id.trim() !== '' && 
-    conf.key.trim() !== '' && 
-    conf.template.trim() !== ''
-  } else {
-    result = conf.template.trim() !== ''
-  }
-  return result
+const conf = {
+  set(key, val) {
+    config[key] = val
+    if (conf.valid()) saveToCookie()
+  },
+  get(key) {
+    if (key) return config[key]
+    return config
+  },
+  valid() {
+    let result = false
+    if (config.nyc) {
+      result = config.url.trim() !== '' && 
+      config.id.trim() !== '' && 
+      config.key.trim() !== '' && 
+      config.template.trim() !== ''
+    } else {
+      result = config.template.trim() !== ''
+    }
+    return result
+  },
+  getSaved() {
+    const it = `${COOKIE}=`
+    const cookies = document.cookie.split(';')
+    cookies.forEach(cookie => {
+      cookie = cookie.trim();
+      if (cookie.indexOf(it) === 0) {
+        const savedConf = JSON.parse(cookie.substr(it.length, cookie.length))
+        Object.keys(savedConf).forEach(key => {
+          config[key] = savedConf[key]
+        })
+      }
+    })
+    return config
+  }  
 }
 
 const saveToCookie = () => {
   const today = new Date()
   const expire = new Date()
   expire.setDate(today.getDate() + 365)
-  document.cookie = `${COOKIE}=${JSON.stringify(conf)}; expires=${expire.toGMTString()}`
+  document.cookie = `${COOKIE}=${JSON.stringify(config)}; expires=${expire.toGMTString()}`
 }
 
-const getSaved = () => {
-  const it = `${COOKIE}=`
-  const cookies = document.cookie.split(';')
-  cookies.forEach(cookie => {
-    cookie = cookie.trim();
-    if (cookie.indexOf(it) === 0) {
-      const savedConf = JSON.parse(cookie.substr(it.length, cookie.length))
-      Object.keys(savedConf).forEach(key => {
-        conf[key] = savedConf[key]
-      })
-    }
-  })
-  return conf
-}
-
-export default {get, set, valid, getSaved}
+export default conf
