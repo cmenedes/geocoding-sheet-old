@@ -86,3 +86,39 @@ test('valid', () => {
 
   expect(Conf.valid()).toBe(true)
 })
+
+test('getSaved', () => {
+  expect.assertions(6)
+
+  const mockDoc = {cookie: 'oreo=a-kind-of-cookie; expires=whenever;geocoding-sheet={"nyc":true,"template":"mock-template","url":"mock-url","id":"mock-id","key":"mock-key","requestedFields":["mock-field"]}; expires=Wed, 26 Aug 2050 20:46:49 GMT'}
+
+  const conf = Conf.getSaved(mockDoc)
+
+  expect(Conf.get('nyc')).toBe(true)
+  expect(Conf.get('url')).toBe('mock-url')
+  expect(Conf.get('id')).toBe('mock-id')
+  expect(Conf.get('key')).toBe('mock-key')
+  expect(Conf.get('template')).toBe('mock-template')
+  expect(Conf.get('requestedFields')).toEqual(['mock-field'])
+})
+
+test('saveToCookie', () => {
+  expect.assertions(1)
+
+  const mockDoc = {cookie: 'oreo=a-kind-of-cookie; expires=whenever;'}
+
+  Conf.set('nyc', false)  
+  Conf.set('url', 'a-mock-url')
+  Conf.set('id', 'a-mock-id')
+  Conf.set('key', 'a-mock-key')
+  Conf.set('template', 'a-mock-template')
+  Conf.set('requestedFields', ['a-mock-field'])
+
+  const today = new Date()
+  const expire = new Date()
+  expire.setDate(today.getDate() + 365)
+  const expectedCookie = `geocoding-sheet={"nyc":false,"url":"a-mock-url","id":"a-mock-id","key":"a-mock-key","template":"a-mock-template","requestedFields":["a-mock-field"]}; expires=${expire.toGMTString()}`
+  const conf = Conf.saveToCookie(mockDoc)
+
+  expect(mockDoc.cookie).toBe(expectedCookie)
+})

@@ -17,7 +17,7 @@ import Feature from 'ol/Feature'
 
 class App {
   constructor() {
-    const conf = Conf.getSaved()
+    const conf = Conf.getSaved(document)
     $('body').html(HTML)
     this.geoclient = new Geoclient({url: this.geoclientUrl()})
     this.census = new CensusGeocoder()
