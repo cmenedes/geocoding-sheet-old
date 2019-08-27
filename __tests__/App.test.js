@@ -15,24 +15,35 @@ const confNyc = {
   template: 'mock-template',
   url: 'mock-geoclient-url',
   id: 'mock-id',
-  key: 'mock-key'
+  key: 'mock-key',
+  requestedFields: [App.POSSIBLE_FIELDS[1], App.POSSIBLE_FIELDS[100]]
 }
+
+const getSaved = Conf.getSaved
+
+beforeEach(() => {
+  Conf.getSaved = () => {return Conf.get()}
+  Object.keys(confNyc).forEach(key => {
+    Conf.set(key, confNyc[key])
+  })
+})
+
+afterEach(() => {
+  Conf.getSaved = getSaved
+})
 
 describe('constructor', () => {
   const geoclientUrl = App.prototype.geoclientUrl
-  const populateConf = App.prototype.populateConf
+  const setConfigValues = App.prototype.setConfigValues
   const hookup = App.prototype.hookup
   beforeEach(() => {
-    Object.keys(confNyc).forEach(key => {
-      Conf.set('key')
-    })
     App.prototype.geoclientUrl = () => {return 'mock-geoclient-url'}
-    App.prototype.populateConf = jest.fn()
+    App.prototype.setConfigValues = jest.fn()
     App.prototype.hookup = jest.fn()
   })
   afterEach(() => {
     App.prototype.geoclientUrl = geoclientUrl
-    App.prototype.populateConf = populateConf
+    App.prototype.setConfigValues = setConfigValues
     App.prototype.hookup = hookup
   })
 
@@ -91,9 +102,26 @@ describe('constructor', () => {
     expect(app.tabs.active.length).toBe(1)
     expect(app.tabs.active.get(0)).toBe($('#tab-conf').get(0))
   
-    expect(app.populateConf).toHaveBeenCalledTimes(1)
-    expect(app.populateConf.mock.calls[0][0]).toBe(Conf.get())
+    expect(app.setConfigValues).toHaveBeenCalledTimes(1)
+    expect(app.setConfigValues.mock.calls[0][0]).toBe(Conf.get())
     
     expect(app.hookup).toHaveBeenCalledTimes(1)
   })
+})
+
+test('setConfigValues', () => {
+  expect.assertions(8)
+
+  const app = new App()
+
+  expect(app.geoFields.val().length).toBe(2)
+  expect(app.geoFields.val()[0].values[0]).toBe(App.POSSIBLE_FIELDS[1])
+  expect(app.geoFields.val()[1].values[0]).toBe(App.POSSIBLE_FIELDS[100])
+
+  expect($('#template').val()).toBe('mock-template')
+  expect($('#url').val()).toBe('mock-geoclient-url')
+  expect($('#id').val()).toBe('mock-id')
+  expect($('#key').val()).toBe('mock-key')
+  
+  expect(app.geoApi.val()[0].values[0]).toBe('nyc')
 })

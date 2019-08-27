@@ -54,10 +54,10 @@ class App {
         {tab: '#tab-map', title: 'Map'}
       ]
     })
-    this.populateConf(conf)
+    this.setConfigValues(conf)
     this.hookup()
   }
-  populateConf(conf) {
+  setConfigValues(conf) {
     const fields = []
     conf.requestedFields.forEach(f => {
       fields.push({name: f, label: f, values: [f]})
