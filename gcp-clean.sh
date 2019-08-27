@@ -1,2 +1,2 @@
-rm ./gcp/Code.gs
-rm ./gcp/index.html
+rm ./gcp/Code.gs  &>/dev/null &
+rm ./gcp/index.html  &>/dev/null &

@@ -198,4 +198,6 @@ const HTML = `<div id="tabs">
   </div>  
 </div>`
 
+App.POSSIBLE_FIELDS = POSSIBLE_FIELDS
+
 export default App
