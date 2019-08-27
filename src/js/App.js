@@ -79,19 +79,24 @@ class App {
       me.sheetGeocoder.clear()
     })
     $('#review').change($.proxy(this.review, this))
-    $('#download').click($.proxy(this.download, this))
-    $('#tab-conf input').keyup($.proxy(this.update, this))
     $('.pop .btn-x').click(() => {$('#review').trigger('change')})
     this.sheetGeocoder.on('geocoded', event => {
       $(`#review option[value="${event.feature.getId()}"]`).remove()
     })
-    this.geoFields.on('change', this.update, this);
-    $(window).resize($.proxy(this.setHeight, this))
-    this.tabs.on('change', this.setHeight, this)
+    $('#download').click($.proxy(this.download, this))
+    $('#tab-conf input').keyup($.proxy(this.update, this))
+    $(window).resize($.proxy(this.setMapSize, this))
+    this.tabs.on('change', this.setMapSize, this)
     this.locationMgr.on('geocoded', this.showPopup, this)
     this.update()
   }
-  setHeight() {
+  review() {
+    
+  }
+  download() {
+    
+  }
+  setMapSize() {
     const div = $('#map')
     const map = this.map
     if (map) {

@@ -109,7 +109,7 @@ describe('constructor', () => {
   })
 })
 
-test('setConfigValues', () => {
+test('setConfigValues (called from constructor)', () => {
   expect.assertions(8)
 
   const app = new App()
@@ -125,3 +125,95 @@ test('setConfigValues', () => {
   
   expect(app.geoApi.val()[0].values[0]).toBe('nyc')
 })
+
+describe('hookup', () => {
+  const update = App.prototype.update
+  const review = App.prototype.review
+  const download = App.prototype.download
+  const setMapSize = App.prototype.setMapSize
+  const showPopup = App.prototype.showPopup
+  const opt = $('<option value="1"></option>')
+  beforeEach(() => {
+    App.prototype.update = jest.fn()
+    App.prototype.review = jest.fn()
+    App.prototype.download = jest.fn()
+    App.prototype.setMapSize = jest.fn()
+    App.prototype.showPopup = jest.fn()
+  })
+  afterEach(() => {
+    App.prototype.update = update
+    App.prototype.review = review
+    App.prototype.download = download
+    App.prototype.setMapSize = setMapSize
+    App.prototype.showPopup = showPopup
+    opt.remove()
+  })
+
+  test('hookup (called from constructor)', () => {
+    expect.assertions(16)
+
+    const app = new App()
+
+    $('#review').append(opt)
+    expect(app.review).toHaveBeenCalledTimes(0)
+
+    app.sheetGeocoder.getData = jest.fn()
+    app.sheetGeocoder.clear = jest.fn()
+
+    app.geoFields.trigger('change')
+    expect(app.update).toHaveBeenCalledTimes(2)
+    
+    app.geoApi.trigger('change')
+    expect(app.update).toHaveBeenCalledTimes(3)
+
+    $('#geocode').trigger('click')
+    expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(1)
+    expect(app.sheetGeocoder.getData.mock.calls[0][0]).toBe(true)
+
+    $('#reset').trigger('click')
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
+
+    $('#review').trigger('change')
+    expect(app.review).toHaveBeenCalledTimes(1)
+    $('.pop .btn-x').trigger('click')
+    expect(app.review).toHaveBeenCalledTimes(3) // why no 2
+
+    expect($('#review option').length).toBe(2)
+    app.sheetGeocoder.trigger('geocoded', {feature: {getId: () => {return 0}}})
+    expect($('#review option').length).toBe(2)
+    app.sheetGeocoder.trigger('geocoded', {feature: {getId: () => {return 1}}})
+    expect($('#review option').length).toBe(1)
+  
+    $('#download').trigger('click')
+    expect(app.download).toHaveBeenCalledTimes(1)
+
+    $($('#tab-conf input').get(0)).trigger('keyup')
+    expect(app.update).toHaveBeenCalledTimes(4)
+  
+    $(window).trigger('resize')
+    expect(app.setMapSize).toHaveBeenCalledTimes(1)
+  
+    // why no call setMapSize
+    // $(app.tabs).trigger('change')
+    // expect(app.setMapSize).toHaveBeenCalledTimes(2)
+  
+    app.locationMgr.trigger('geocoded', 'mock-location')
+    expect(app.showPopup).toHaveBeenCalledTimes(1)
+    expect(app.showPopup.mock.calls[0][0]).toBe('mock-location')
+  })
+})
+
+test('setMapSize', () => {
+  expect.assertions(2)
+
+  const app = new App()
+
+  expect(app.map.getSize()).toEqual([NaN, NaN])
+
+  $('#map').width(400)
+  $('#map').height(600)
+  app.setMapSize()
+
+  expect(app.map.getSize()).toEqual([400, 600])
+})
+
