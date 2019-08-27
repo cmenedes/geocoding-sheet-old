@@ -11,6 +11,7 @@ import OSM from 'ol/source/OSM'
 import TileLayer from 'ol/layer/Tile'
 import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder';
 import Geoclient from 'nyc-lib/nyc/Geoclient';
+import LocalStorage from 'nyc-lib/nyc/LocalStorage';
 
 class App {
   constructor() {
@@ -91,13 +92,40 @@ class App {
     this.update()
   }
   review() {
-    
+    const feature = layer.source.getFeatureById($('#review').val())
+    if (feature) {
+      const input = feature.get('_geocodeResp').input
+      $('.srch-ctl input').val(input).data('last-search', input)
+      $('.srch-ctl .btn-srch').trigger('click')
+    }
   }
   download() {
-    
+    const download = []
+    const features = layer.source.getFeatures()
+    features.forEach(f => {
+      const props = f.getProperties()
+      props.SHEET_ROW_NUM = props._row_index + 1
+      delete props.X
+      delete props.Y
+      delete props.LNG
+      delete props.LAT
+      delete props._input
+      delete props._geocodeResp
+      delete props._row_index
+      delete props._columns
+      delete props._row_data
+      delete props._source
+      const feature = new ol.Feature(props)
+      feature.setGeometry(feature.getGeometry())
+      download.push(feature)
+    })
+    const options = {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'}
+    new LocalStorage().saveGeoJson('geocoded.json', geoJson.writeFeatures(download, options))
   }
-  correctSheet() {
-
+  correctSheet(feature, data) {
+    feature.set('_interactive', true)
+    feature.once('change', geocoded)
+    this.sheetGeocoder.format.setGeocode(feature, data)
   }
   setMapSize() {
     const div = $('#map')
