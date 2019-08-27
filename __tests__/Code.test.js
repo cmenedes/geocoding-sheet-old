@@ -5,12 +5,7 @@ import google from './goog.mock'
 import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 import goog from './goog.mock';
-
-const gs = fs.readFileSync(path.resolve(__dirname, '../src/js/Code.gs'), {encoding: 'utf-8'})
-
-beforeAll(() => {
-  $('body').append(`<script type="text/javascript">${gs}</script>`)
-})
+import Code from '../src/js/Code'
 
 beforeEach(() => {
   HtmlService.resetMocks()
@@ -31,29 +26,10 @@ test('functions loaded', () => {
   expect(typeof geocoded).toBe('function')
 })
 
-describe('onInstall', () => {
-  let onOpen_
-  beforeEach(() => {
-    onOpen_ = onOpen
-    onOpen = jest.fn()
-  })
-  afterEach(() => {
-    onOpen = onOpen_
-  })
-
-  test('onInstall', () => {
-    expect.assertions(1)
-
-    onInstall()
-    
-    expect(onOpen).toHaveBeenCalledTimes(1)
-  })
-})
-
-test('onOpen', () => {
+test('onInstall', () => {
   expect.assertions(6)
 
-  onOpen()
+  onInstall()
 
   expect(SpreadsheetApp.getUi).toHaveBeenCalledTimes(1)
   
