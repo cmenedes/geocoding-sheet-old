@@ -19,6 +19,21 @@ const confNyc = {
   requestedFields: [App.POSSIBLE_FIELDS[1], App.POSSIBLE_FIELDS[100]]
 }
 
+const confCensus = {
+  nyc: false,
+  template: 'mock-template',
+  url: '',
+  id: '',
+  key: '',
+  requestedFields: []
+}
+
+const confInvalid = {
+  nyc: false,
+  template: '',
+  requestedFields: []
+}
+
 const getSaved = Conf.getSaved
 
 beforeEach(() => {
@@ -217,3 +232,102 @@ test('setMapSize', () => {
   expect(app.map.getSize()).toEqual([400, 600])
 })
 
+describe('update', () => {
+  const setup = App.prototype.setup
+  beforeEach(() => {
+    App.prototype.setup = jest.fn()
+  })
+  afterEach(() => {
+    App.prototype.setup = setup
+  })
+  test('update', () => {
+    expect.assertions(17)
+
+    const app = new App()
+
+    $('.gc').each((i, n) => {
+      expect($(n).css('display')).not.toBe('none')
+    })
+
+    $('#template').val('diff-template').trigger('change')
+    $('#url').val('diff-url').trigger('change')
+    $('#id').val('diff-url').trigger('change')
+    $('#url').val('diff-url').trigger('change')
+    app.geoApi.val([app.geoApi.choices[1]])
+    app.geoApi.trigger('change')
+    app.geoFields.val([app.geoFields.choices[2], app.geoFields.choices[20]])
+    app.geoFields.trigger('change')
+
+    const conf = Conf.get()
+    expect(conf.nyc).toBe(false)
+
+    $('.gc').each((i, n) => {
+      expect($(n).css('display')).toBe('none')
+    })
+  })
+})
+
+describe('setup', () => {
+  const setup = App.prototype.setup
+  const clear = SheetGeocoder.prototype.clear
+  const conf = SheetGeocoder.prototype.conf
+
+  beforeEach(() => {
+    App.prototype.setup = jest.fn()
+    SheetGeocoder.prototype.clear = jest.fn()
+    SheetGeocoder.prototype.conf = jest.fn()
+  })
+  afterEach(() => {
+    App.prototype.setup = setup
+    SheetGeocoder.prototype.clear = clear
+    SheetGeocoder.prototype.conf = conf
+  })
+
+  test('setup is valid and is nyc', () => {
+    expect.assertions(9)
+
+    const app = new App()
+    
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
+    
+    app.setup = setup
+    app.setup()
+
+    expect(app.base.getVisible()).toBe(true)
+    expect(app.label.getVisible()).toBe(true)
+    expect(app.osm.getVisible()).toBe(false)
+
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(2)
+    expect(app.sheetGeocoder.projection).toBe('EPSG:2263')
+    expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
+    expect(app.locationMgr.locator.geocoder).toBe(app.geoclient)
+    expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
+
+  })
+
+  test('setup is valid and is not nyc', () => {
+    expect.assertions(9)
+
+    Object.keys(confCensus).forEach(key => {
+      Conf.set(key, confCensus[key])
+    })
+    
+    const app = new App()
+    
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
+    
+    app.setup = setup
+    app.setup()
+
+    expect(app.base.getVisible()).toBe(false)
+    expect(app.label.getVisible()).toBe(false)
+    expect(app.osm.getVisible()).toBe(true)
+
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(2)
+    expect(app.sheetGeocoder.projection).toBe('')
+    expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
+    expect(app.locationMgr.locator.geocoder).toBe(app.census)
+    expect(app.geoclient.url).toBe('/search.json?app_id=&app_key=&input=')
+
+  })
+})

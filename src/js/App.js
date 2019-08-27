@@ -106,16 +106,12 @@ class App {
   update() {
     const nyc = this.geoApi.val()[0].values[0] === 'nyc'
     Conf.set('nyc', nyc)
-    if (nyc) {
-      $('.gc').show()
-      Conf.set('url', $('#url').val())
-      Conf.set('id', $('#id').val())
-      Conf.set('key', $('#key').val())
-    } else {
-      $('.gc').hide()
-    }
+    Conf.set('url', $('#url').val())
+    Conf.set('id', $('#id').val())
+    Conf.set('key', $('#key').val())
     Conf.set('template', $('#template').val())
     Conf.set('requestedFields', this.requestedFields())
+    $('.gc')[nyc ? 'show' : 'hide']()
     this.setup()
   }
   setup() {
