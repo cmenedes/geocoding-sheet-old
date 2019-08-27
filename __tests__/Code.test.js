@@ -5,7 +5,7 @@ import google from './goog.mock'
 import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 
-const codeJs = fs.readFileSync(path.resolve(__dirname, '../src/js/Code.js'), {encoding: 'utf-8'})
+const codeJs = fs.readFileSync(path.resolve(__dirname, '../src/js/Code.gs'), {encoding: 'utf-8'})
 
 beforeAll(() => {
   $('body').append(`<script type="text/javascript">${codeJs}</script>`)
@@ -13,7 +13,7 @@ beforeAll(() => {
 
 test('functions loaded', () => {
   expect.assertions(8)
-  
+
   expect(typeof onInstall).toBe('function')
   expect(typeof onOpen).toBe('function')
   expect(typeof show).toBe('function')
