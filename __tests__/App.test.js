@@ -37,7 +37,7 @@ describe('constructor', () => {
   })
 
   test('constructor', () => {
-    expect.assertions(1606)
+    expect.assertions(1609)
 
     const app = new App()
 
@@ -90,5 +90,10 @@ describe('constructor', () => {
     expect(app.tabs.container.find('.tab').length).toBe(2)
     expect(app.tabs.active.length).toBe(1)
     expect(app.tabs.active.get(0)).toBe($('#tab-conf').get(0))
+  
+    expect(app.populateConf).toHaveBeenCalledTimes(1)
+    expect(app.populateConf.mock.calls[0][0]).toBe(Conf.get())
+    
+    expect(app.hookup).toHaveBeenCalledTimes(1)
   })
 })
