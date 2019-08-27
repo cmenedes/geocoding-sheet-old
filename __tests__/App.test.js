@@ -365,7 +365,7 @@ describe('setup', () => {
   })
 })
 
-describe.only('showPopup', () => {
+describe('showPopup', () => {
   const correctSheet = App.prototype.correctSheet
   const show = Popup.prototype.show
   const hide = Popup.prototype.hide
@@ -444,6 +444,29 @@ describe.only('showPopup', () => {
     expect(app.correctSheet).toHaveBeenCalledTimes(0)
     expect(app.popup.hide).toHaveBeenCalledTimes(0)
   })
-
 })
 
+describe('requestedFields', () => {
+  test('requestedFields is nyc', () => {
+    expect.assertions(3)
+
+    const app = new App()
+
+    const fields = app.requestedFields()
+
+    expect(fields.length).toBe(2)
+    expect(fields[0]).toBe(App.POSSIBLE_FIELDS[1])
+    expect(fields[1]).toBe(App.POSSIBLE_FIELDS[100])
+  })
+  test('requestedFields not nyc', () => {
+    expect.assertions(1)
+
+    Conf.set('nyc', false)
+
+    const app = new App()
+
+    const fields = app.requestedFields()
+
+    expect(fields.length).toBe(0)
+  })
+})
