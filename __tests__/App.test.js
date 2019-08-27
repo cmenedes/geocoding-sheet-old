@@ -9,6 +9,8 @@ import Popup from 'nyc-lib/nyc/ol/Popup'
 import SheetGeocoder from '../src/js/SheetGeocoder'
 import Conf from '../src/js/Conf'
 import layer from '../src/js/layer'
+import Feature from 'ol/Feature';
+import ol from 'nyc-lib/nyc/ol';
 
 const confNyc = {
   nyc: true,
@@ -331,3 +333,85 @@ describe('setup', () => {
 
   })
 })
+
+describe('showPopup', () => {
+  const correctSheet = App.prototype.correctSheet
+  const show = Popup.prototype.show
+  const hide = Popup.prototype.hide
+  const feature = new Feature({_geocodeResp: {input: 'failed'}})
+  const opt = $('<option value="1"></option>').data('feature', feature)
+  beforeEach(() => {
+    App.prototype.correctSheet = jest.fn()
+    Popup.prototype.show = jest.fn()
+    Popup.prototype.hide = jest.fn()
+  })
+  afterEach(() => {
+    App.prototype.correctSheet = correctSheet
+    Popup.prototype.show = show
+    Popup.prototype.hide = hide
+    opt.remove()
+  })
+
+  test('showPopup has feature with failed geocode', () => {
+    expect.assertions(7)
+
+    const data = {name: 'fred', coordinate: 'mock-coord'}
+    
+    const app = new App()
+
+    $('#review').append(opt).val(1)
+    $('.srch-ctl input').data('last-search', 'failed')
+   
+    app.showPopup(data)
+
+    expect(app.popup.show).toHaveBeenCalledTimes(1)
+    expect(app.popup.show.mock.calls[0][0].coordinate).toBe('mock-coord')
+    expect(app.popup.show.mock.calls[0][0].html.html()).toBe('<h3>fred</h3><div></div><button class="update btn rad-all">Update row 2</button>')
+
+    app.popup.show.mock.calls[0][0].html.find('button').trigger('click')
+
+    expect(app.correctSheet).toHaveBeenCalledTimes(1)
+    expect(app.correctSheet.mock.calls[0][0]).toBe(feature)
+    expect(app.correctSheet.mock.calls[0][1]).toBe(data)
+
+    expect(app.popup.hide).toHaveBeenCalledTimes(1)
+  })
+
+  test('showPopup has feature no failed geocode', () => {
+    expect.assertions(3)
+
+    const data = {name: 'fred', coordinate: 'mock-coord'}
+    
+    feature.get('_geocodeResp').input = 'success'
+
+    const app = new App()
+
+    $('#review').append(opt).val(1)
+    $('.srch-ctl input').data('last-search', 'failed')
+   
+    app.showPopup(data)
+
+    expect(app.popup.show).toHaveBeenCalledTimes(0)
+    expect(app.correctSheet).toHaveBeenCalledTimes(0)
+    expect(app.popup.hide).toHaveBeenCalledTimes(0)
+  })
+
+  test('showPopup no feature', () => {
+    expect.assertions(3)
+
+    const data = {name: 'fred', coordinate: 'mock-coord'}
+    
+    const app = new App()
+
+    $('#review').append(opt).val('not-the-one')
+    $('.srch-ctl input').data('last-search', 'failed')
+   
+    app.showPopup(data)
+
+    expect(app.popup.show).toHaveBeenCalledTimes(0)
+    expect(app.correctSheet).toHaveBeenCalledTimes(0)
+    expect(app.popup.hide).toHaveBeenCalledTimes(0)
+  })
+
+})
+

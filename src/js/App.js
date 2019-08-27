@@ -96,6 +96,9 @@ class App {
   download() {
     
   }
+  correctSheet() {
+
+  }
   setMapSize() {
     const div = $('#map')
     const map = this.map
@@ -142,7 +145,7 @@ class App {
           .click(() => {
             me.correctSheet(feature, data)
             me.popup.hide()
-          }).html(`Update row  ${id * 1 + 1}`)
+          }).html(`Update row ${id * 1 + 1}`)
         me.popup.show({
           coordinate: data.coordinate,
           html: $(`<div><h3>${data.name}</h3><div>`).append(btn)
