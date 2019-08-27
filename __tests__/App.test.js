@@ -220,18 +220,26 @@ describe('hookup', () => {
   })
 })
 
-test('setMapSize', () => {
-  expect.assertions(2)
-
-  const app = new App()
-
-  expect(app.map.getSize()).toEqual([NaN, NaN])
-
-  $('#map').width(400)
-  $('#map').height(600)
-  app.setMapSize()
-
-  expect(app.map.getSize()).toEqual([400, 600])
+describe('setMapSize', () => {
+  test('setMapSize has map', () => {
+    expect.assertions(2)
+  
+    const app = new App()
+  
+    expect(app.map.getSize()).toEqual([NaN, NaN])
+  
+    $('#map').width(400)
+    $('#map').height(600)
+    app.setMapSize()
+  
+    expect(app.map.getSize()).toEqual([400, 600])
+  })
+  test('setMapSize no map', () => {
+    expect.assertions(0)
+    const app = new App()
+    delete app.map
+    app.setMapSize()
+  })
 })
 
 describe('update', () => {
@@ -304,7 +312,6 @@ describe('setup', () => {
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
     expect(app.locationMgr.locator.geocoder).toBe(app.geoclient)
     expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
-
   })
 
   test('setup is valid and is not nyc', () => {
@@ -330,17 +337,43 @@ describe('setup', () => {
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
     expect(app.locationMgr.locator.geocoder).toBe(app.census)
     expect(app.geoclient.url).toBe('/search.json?app_id=&app_key=&input=')
+  })
 
+  test('setup not valid', () => {
+    expect.assertions(9)
+
+    Conf.set('template', '')
+    Conf.set('url', 'a-url')
+
+    const app = new App()
+    
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
+    
+    app.setup = setup
+    app.setup()
+
+    expect(app.base.getVisible()).toBe(true)
+    expect(app.label.getVisible()).toBe(true)
+    expect(app.osm.getVisible()).toBe(false)
+
+    expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
+    expect(app.sheetGeocoder.projection).toBeUndefined()
+    expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(0)
+    
+    expect(app.locationMgr.locator.geocoder).toBe(app.census)
+    expect(app.geoclient.url).toBe('a-url/search.json?app_id=mock-id&app_key=mock-key&input=&input=')
   })
 })
 
-describe('showPopup', () => {
+describe.only('showPopup', () => {
   const correctSheet = App.prototype.correctSheet
   const show = Popup.prototype.show
   const hide = Popup.prototype.hide
   const feature = new Feature({_geocodeResp: {input: 'failed'}})
-  const opt = $('<option value="1"></option>').data('feature', feature)
+  let opt
   beforeEach(() => {
+    opt = $('<option value="1"></option>').data('feature', feature)
+    feature.setId(1)
     App.prototype.correctSheet = jest.fn()
     Popup.prototype.show = jest.fn()
     Popup.prototype.hide = jest.fn()
@@ -382,12 +415,11 @@ describe('showPopup', () => {
 
     const data = {name: 'fred', coordinate: 'mock-coord'}
     
-    feature.get('_geocodeResp').input = 'success'
-
     const app = new App()
 
-    $('#review').append(opt).val(1)
-    $('.srch-ctl input').data('last-search', 'failed')
+    feature.set('_geocodeResp', {input: 'success'})
+    $('#review').append(opt).val(1)    
+    $('.srch-ctl input').data('last-search', 'something else')
    
     app.showPopup(data)
 
