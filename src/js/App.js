@@ -92,7 +92,8 @@ class App {
     this.update()
   }
   review() {
-    const feature = layer.source.getFeatureById($('#review').val())
+    const id = $('#review').val()
+    const feature = $(`#review option[value="${id}"]`).data('feature')
     if (feature) {
       const input = feature.get('_geocodeResp').input
       $('.srch-ctl input').val(input).data('last-search', input)

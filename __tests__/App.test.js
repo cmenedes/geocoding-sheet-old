@@ -470,3 +470,49 @@ describe('requestedFields', () => {
     expect(fields.length).toBe(0)
   })
 })
+
+describe('review', () => {
+  const feature = new Feature({_geocodeResp: {input: 'failed'}})
+  let opt
+  beforeEach(() => {
+    opt = $('<option value="1"></option>').data('feature', feature)
+  })
+
+  test('review has feature', () => {
+    expect.assertions(5)
+
+    const app = new App()
+    
+    app.locationMgr.locator.geocoder.search = jest.fn()
+
+    $('#review').append(opt).val(1)
+
+    expect($('.srch-ctl input').val()).toBe('')
+    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
+
+    app.review()
+
+    expect($('.srch-ctl input').val()).toBe('failed')
+    expect($('.srch-ctl input').data('last-search')).toBe('failed')
+    expect(app.locationMgr.locator.geocoder.search).toHaveBeenCalledTimes(1)
+  })
+
+  test('review no feature', () => {
+    expect.assertions(5)
+
+    const app = new App()
+    
+    app.locationMgr.locator.geocoder.search = jest.fn()
+
+    $('#review').append(opt)
+
+    expect($('.srch-ctl input').val()).toBe('')
+    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
+
+    app.review()
+
+    expect($('.srch-ctl input').val()).toBe('')
+    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
+    expect(app.locationMgr.locator.geocoder.search).toHaveBeenCalledTimes(0)
+  })
+})
