@@ -33,4 +33,4 @@ SpreadsheetApp.resetMocks = resetMocks
 
 global.SpreadsheetApp = SpreadsheetApp
 
-export SpreadsheetApp
+export default SpreadsheetApp
