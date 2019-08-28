@@ -117,6 +117,4 @@ try {
   global.geoCols = geoCols
   global.setFields = setFields
   global.geocoded = geocoded
-} catch(ignore) {
-  console.warn(ignore)
-}
+} catch(ignore) {}
