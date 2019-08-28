@@ -3,7 +3,7 @@ import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 import goog from './goog.mock';
 import Code from '../src/js/Code'
-import MockData from './MockData.mock'
+import MockData from './Data.mock'
 
 beforeEach(() => {
   HtmlService.resetMocks()
