@@ -21,7 +21,7 @@ const resetMocks = () => {
   SpreadsheetApp.getUi = jest.fn().mockImplementation(() => {
     return ui
   })
-  SpreadsheetApp.showSidebar = jest.fn()
+  ui.showSidebar = jest.fn()
   SpreadsheetApp.getActiveSheet = jest.fn().mockImplementation(() => {
     return sheet
   })

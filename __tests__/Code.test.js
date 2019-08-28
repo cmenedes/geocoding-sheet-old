@@ -45,3 +45,25 @@ test('onInstall', () => {
   expect(item.addToUi).toHaveBeenCalledTimes(1)
 
 })
+
+test('show', () => {
+  expect.assertions(8)
+
+  show()
+
+  expect(HtmlService.createTemplateFromFile).toHaveBeenCalledTimes(1)
+  expect(HtmlService.createTemplateFromFile.mock.calls[0][0]).toBe('index')
+
+  const templ = HtmlService.createTemplateFromFile.mock.results[0].value
+  expect(templ.evaluate).toHaveBeenCalledTimes(1)
+
+  const page = templ.evaluate.mock.results[0].value
+  expect(page.setTitle).toHaveBeenCalledTimes(1)
+  expect(page.setTitle.mock.calls[0][0]).toBe('Geocoder')
+
+  expect(SpreadsheetApp.getUi).toHaveBeenCalledTimes(1)
+
+  const ui = SpreadsheetApp.getUi.mock.results[0].value
+  expect(ui.showSidebar).toHaveBeenCalledTimes(1)
+  expect(ui.showSidebar.mock.calls[0][0]).toBe(page)
+})

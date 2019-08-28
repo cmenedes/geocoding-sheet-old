@@ -9,11 +9,15 @@ const resetMocks = () => {
   template.evaluate = jest.fn().mockImplementation(() => {
     return page
   })
-  page.setTitle = jest.fn()
+  page.setTitle = jest.fn().mockImplementation(() => {
+    return page
+  })
 }
 
 resetMocks()
 
 HtmlService.resetMocks = resetMocks
+
+global.HtmlService = HtmlService
 
 export default HtmlService
