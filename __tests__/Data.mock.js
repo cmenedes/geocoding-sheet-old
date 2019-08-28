@@ -1,3 +1,5 @@
+import Code from '../src/js/Code'
+
 const GEOCODE_RESP = {
   input: '59 maiden, mn',
   data: {

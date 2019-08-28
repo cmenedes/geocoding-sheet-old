@@ -1,9 +1,8 @@
 import google from './goog.mock'
 import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
-import goog from './goog.mock';
-import Code from '../src/js/Code'
 import MockData from './Data.mock'
+import Code from '../src/js/Code'
 
 beforeEach(() => {
   HtmlService.resetMocks()
@@ -164,16 +163,42 @@ describe('geoCols', () => {
 })
 
 describe('geocoded', () => {
-  test('geocoded - projected - not previously geocoded', () => {
-    expect.assertions(3)
 
-    SpreadsheetApp.sheet.data = MockData.NOT_GEOCODED_SHEET
+  const testGeocoded = (mockSheetData, mockGeocodeData) => {
+    SpreadsheetApp.sheet.data = mockSheetData
 
-    const result = geocoded(MockData.GC_PROJECT_DATA_0)
+    const result = geocoded(mockGeocodeData)
 
-    expect(result.columns).toEqual(['num', 'street', 'city'])
-    expect(result.cells).toEqual([59, 'maiden', 'mn'])
+    expect(result.columns).toEqual(mockSheetData[0])
+    expect(result.cells).toEqual(mockSheetData[mockGeocodeData.row])
 
-    expect(SpreadsheetApp.sheet.getRange).toHaveBeenCalledTimes(18)
+    expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[9]).toEqual([2, 4])
+    expect(SpreadsheetApp.range.setValue.mock.calls[7]).toEqual([mockGeocodeData.name])
+    
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[10]).toEqual([2, 5])
+    expect(SpreadsheetApp.range.setValue.mock.calls[8]).toEqual([mockGeocodeData.lng])
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[11]).toEqual([2, 6])
+    expect(SpreadsheetApp.range.setValue.mock.calls[9]).toEqual([mockGeocodeData.lat])
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[12]).toEqual([2, 7])
+    expect(SpreadsheetApp.range.setValue.mock.calls[10]).toEqual([mockGeocodeData.x])
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[13]).toEqual([2, 8])
+    expect(SpreadsheetApp.range.setValue.mock.calls[11]).toEqual([mockGeocodeData.y])
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[14]).toEqual([2, 9])
+    expect(SpreadsheetApp.range.setValue.mock.calls[12]).toEqual([mockGeocodeData.geocodeResp.data.assemblyDistrict])
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[15]).toEqual([2, 10])
+    expect(SpreadsheetApp.range.setValue.mock.calls[13]).toEqual([mockGeocodeData.geocodeResp.data.bbl])
+  }
+
+  test.only('geocoded - projected - not previously geocoded', () => {
+    expect.assertions(17)
+
+    testGeocoded(MockData.NOT_GEOCODED_SHEET, MockData.GC_PROJECT_DATA_0)
   })
 })

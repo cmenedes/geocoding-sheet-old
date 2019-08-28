@@ -92,17 +92,17 @@ function geocoded(data) {
   var sheet = SpreadsheetApp.getActiveSheet();
   var cols = geoCols(sheet, data);
   if (!isNaN(data.lng)) {
-    sheet.getRange(row, cols.name).setValue(data.geocodeResp.name);
+    sheet.getRange(row, cols.name).setValue(data.name);
     sheet.getRange(row, cols.lng).setValue(data.lng);
     sheet.getRange(row, cols.lat).setValue(data.lat);
     if (data.projected) {
       sheet.getRange(row, cols.x).setValue(data.x);
       sheet.getRange(row, cols.y).setValue(data.y);
     }
+    setFields(sheet, row, cols, data);
     if (data.interactive) {
       sheet.getRange(row, 1, 1, sheet.getLastColumn()).setBackground(CORRECTED_COLOR);
     }
-    setFields(sheet, row, cols, data);
   } else {
     sheet.getRange(row, 1, 1, sheet.getLastColumn()).setBackground(ERROR_COLOR);
   }
