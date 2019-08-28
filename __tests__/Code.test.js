@@ -3,50 +3,7 @@ import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 import goog from './goog.mock';
 import Code from '../src/js/Code'
-
-const NOT_GEOCODED_SHEET = [
-  ['num', 'street', 'city'],
-  [59, 'maiden', 'mn'],
-  ['102-25', '67 dr', 'qn'],
-  [2, 'broadway', '']
-]
-
-const GEOCODED_SHEET = [
-  ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
-  [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
-  ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', 40.72673236, -73.85073033, 1025623, 204080, 28, 4021350059],
-  [2, 'broadway', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined]
-]
-
-const GC_PROJECT_DATA_0 = {
-  projected: 'EPSG:2263',
-  row: 1,
-  columns: ['num', 'street', 'city'],
-  cells: [59, 'maiden', 'mn'],
-  geocodeResp: {input: '59 maiden, mn'},
-  requestedFields: ['assemblyDistrict', 'bbl'],
-  interactive: false
-}
-
-const GC_PROJECT_DATA_1 = {
-  projected: 'EPSG:2263',
-  row: 1,
-  columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
-  cells: [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
-  geocodeResp: {input: '59 maiden, mn'},
-  requestedFields: ['bbl', 'assemblyDistrict'],
-  interactive: false
-}
-
-const GC_DATA_0 = {
-  projected: '',
-  row: 1,
-  columns: ['num', 'street', 'city'],
-  cells: [59, 'maiden', 'mn'],
-  geocodeResp: {input: '59 maiden, mn'},
-  requestedFields: ['assemblyDistrict', 'bbl'],
-  interactive: false
-}
+import MockData from './MockData.mock'
 
 beforeEach(() => {
   HtmlService.resetMocks()
@@ -112,9 +69,9 @@ test('show', () => {
 test('getData', () => {
   expect.assertions(4)
 
-  SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
+  SpreadsheetApp.sheet.data = MockData.NOT_GEOCODED_SHEET
 
-  expect(getData()).toBe(NOT_GEOCODED_SHEET)
+  expect(getData()).toBe(MockData.NOT_GEOCODED_SHEET)
 
   expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
 
@@ -174,22 +131,22 @@ describe('geoCols', () => {
   test('geoCols - projected - not yet added to sheet', () => {
     expect.assertions(25)
 
-    const sheet = testGeoCols(NOT_GEOCODED_SHEET, GC_PROJECT_DATA_0)
+    const sheet = testGeoCols(MockData.NOT_GEOCODED_SHEET, MockData.GC_PROJECT_DATA_0)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(9)
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(7)
     
     expect(sheet.getRange.mock.calls[7]).toEqual([1, 9])
-    expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([GC_PROJECT_DATA_0.requestedFields[0]])
+    expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([MockData.GC_PROJECT_DATA_0.requestedFields[0]])
     
     expect(sheet.getRange.mock.calls[8]).toEqual([1, 10])
-    expect(SpreadsheetApp.range.setValue.mock.calls[6]).toEqual([GC_PROJECT_DATA_0.requestedFields[1]])    
+    expect(SpreadsheetApp.range.setValue.mock.calls[6]).toEqual([MockData.GC_PROJECT_DATA_0.requestedFields[1]])    
   })
 
   test('geoCols - projected - previously added to sheet', () => {
     expect.assertions(21)
 
-    const sheet = testGeoCols(GEOCODED_SHEET, GC_PROJECT_DATA_1)
+    const sheet = testGeoCols(MockData.GEOCODED_SHEET, MockData.GC_PROJECT_DATA_1)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(7)
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
@@ -198,7 +155,7 @@ describe('geoCols', () => {
   test('geoCols - not projected - not yet added to sheet', () => {
     expect.assertions(14)
 
-    const sheet = testGeoCols(NOT_GEOCODED_SHEET, GC_DATA_0)
+    const sheet = testGeoCols(MockData.NOT_GEOCODED_SHEET, MockData.GC_DATA_0)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(6)
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
@@ -208,13 +165,15 @@ describe('geoCols', () => {
 
 describe('geocoded', () => {
   test('geocoded - projected - not previously geocoded', () => {
-    expect.assertions(2)
+    expect.assertions(3)
 
-    SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
+    SpreadsheetApp.sheet.data = MockData.NOT_GEOCODED_SHEET
 
-    const result = geocoded(GC_PROJECT_DATA_0)
+    const result = geocoded(MockData.GC_PROJECT_DATA_0)
 
     expect(result.columns).toEqual(['num', 'street', 'city'])
     expect(result.cells).toEqual([59, 'maiden', 'mn'])
+
+    expect(SpreadsheetApp.sheet.getRange).toHaveBeenCalledTimes(18)
   })
 })
