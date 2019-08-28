@@ -18,7 +18,7 @@ const GEOCODED_SHEET = [
   [2, 'broadway', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined]
 ]
 
-const FIRST_TIME_GC_DATA = {
+const GC_PROJECT_DATA_0 = {
   projected: 'EPSG:2263',
   row: 0,
   columns: ['num', 'street', 'city'],
@@ -28,7 +28,17 @@ const FIRST_TIME_GC_DATA = {
   interactive: false
 }
 
-const ANOTHER_TIME_GC_DATA = {
+const GC_DATA_0 = {
+  projected: '',
+  row: 0,
+  columns: ['num', 'street', 'city'],
+  cells: [59, 'maiden', 'mn'],
+  geocodeResp: {input: '59 maiden, mn'},
+  requestedFields: ['assemblyDistrict', 'bbl'],
+  interactive: false
+}
+
+const GC_PROJECT_DATA_1 = {
   projected: 'EPSG:2263',
   row: 0,
   columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
@@ -116,6 +126,7 @@ test('getData', () => {
 })
 
 describe('geoCols', () => {
+  
   const testGeoCols = (mockSheetData, mockGeocodeData) => {
     SpreadsheetApp.sheet.data = mockSheetData
 
@@ -123,13 +134,20 @@ describe('geoCols', () => {
     
     const cols = geoCols(sheet, mockGeocodeData)
         
+    console.warn(cols);
+    
     expect(cols.name).toBe(4)
     expect(cols.lng).toBe(5)
     expect(cols.lat).toBe(6)
-    expect(cols.x).toBe(7)
-    expect(cols.y).toBe(8)
-    expect(cols.assemblyDistrict).toBe(9)
-    expect(cols.bbl).toBe(10)
+    if (mockGeocodeData.projected) {
+      expect(cols.x).toBe(7)
+      expect(cols.y).toBe(8)
+      expect(cols.assemblyDistrict).toBe(9)
+      expect(cols.bbl).toBe(10)
+    } else {
+      expect(cols.assemblyDistrict).toBe(7)
+      expect(cols.bbl).toBe(8)
+    }
     
     expect(sheet.getRange.mock.calls[0]).toEqual([1, 1, 1, mockGeocodeData.cells.length])
     
@@ -142,38 +160,50 @@ describe('geoCols', () => {
     expect(sheet.getRange.mock.calls[3]).toEqual([1, 6])
     expect(SpreadsheetApp.range.setValue.mock.calls[2]).toEqual([LATITUDE_COL])
     
-    expect(sheet.getRange.mock.calls[4]).toEqual([1, 1, 1, mockGeocodeData.cells.length])
-    
-    expect(sheet.getRange.mock.calls[5]).toEqual([1, 7])
-    expect(SpreadsheetApp.range.setValue.mock.calls[3]).toEqual([PROJECTED_X_COL])
-    
-    expect(sheet.getRange.mock.calls[6]).toEqual([1, 8])
-    expect(SpreadsheetApp.range.setValue.mock.calls[4]).toEqual([PROJECTED_Y_COL])
+    if (mockGeocodeData.projected) {
+      expect(sheet.getRange.mock.calls[4]).toEqual([1, 1, 1, mockGeocodeData.cells.length])
+
+      expect(sheet.getRange.mock.calls[5]).toEqual([1, 7])
+      expect(SpreadsheetApp.range.setValue.mock.calls[3]).toEqual([PROJECTED_X_COL])
+      
+      expect(sheet.getRange.mock.calls[6]).toEqual([1, 8])
+      expect(SpreadsheetApp.range.setValue.mock.calls[4]).toEqual([PROJECTED_Y_COL])
+    }
 
     return sheet
   }
 
-  test('geoCols not yet added to sheet', () => {
+  test('geoCols - projected - not yet added to sheet', () => {
     expect.assertions(25)
 
-    const sheet = testGeoCols(NOT_GEOCODED_SHEET, FIRST_TIME_GC_DATA)
+    const sheet = testGeoCols(NOT_GEOCODED_SHEET, GC_PROJECT_DATA_0)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(9)
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(7)
     
     expect(sheet.getRange.mock.calls[7]).toEqual([1, 9])
-    expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([FIRST_TIME_GC_DATA.requestedFields[0]])
+    expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([GC_PROJECT_DATA_0.requestedFields[0]])
     
     expect(sheet.getRange.mock.calls[8]).toEqual([1, 10])
-    expect(SpreadsheetApp.range.setValue.mock.calls[6]).toEqual([FIRST_TIME_GC_DATA.requestedFields[1]])    
+    expect(SpreadsheetApp.range.setValue.mock.calls[6]).toEqual([GC_PROJECT_DATA_0.requestedFields[1]])    
   })
 
-  test('geoCols previously added to sheet', () => {
+  test('geoCols - projected - previously added to sheet', () => {
     expect.assertions(21)
 
-    const sheet = testGeoCols(GEOCODED_SHEET, ANOTHER_TIME_GC_DATA)
+    const sheet = testGeoCols(GEOCODED_SHEET, GC_PROJECT_DATA_1)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(7)
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
   })
+
+  test('geoCols - not projected - not yet added to sheet', () => {
+    expect.assertions(14)
+
+    const sheet = testGeoCols(NOT_GEOCODED_SHEET, GC_DATA_0)
+
+    expect(sheet.getRange).toHaveBeenCalledTimes(6)
+    expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
+  })
+
 })

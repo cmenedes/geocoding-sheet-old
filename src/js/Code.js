@@ -62,9 +62,7 @@ function geoCols(sheet, data) {
   var fields = data.requestedFields;
   var cols = standardCols(sheet, data);
   var dataCols = data.columns;
-  var last = cols.x;
-  if (last < cols.y) last = cols.y;
-  if (last < cols.lng) last = cols.lng;
+  var last = cols.y || -1;
   if (last < cols.lat) last = cols.lat;
   for (var i = 0; i < fields.length; i++) {
     var field = fields[i];
