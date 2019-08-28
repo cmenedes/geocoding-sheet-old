@@ -85,9 +85,11 @@ test('show', () => {
 test('getData', () => {
   expect.assertions(4)
 
-  SpreadsheetApp.range.returnValues = ['mock-values']
+  const data = NOT_GEOCODED_SHEET
 
-  expect(getData()).toBe('mock-values')
+  SpreadsheetApp.sheet.data = data
+
+  expect(getData()).toBe(data)
 
   expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
 
@@ -98,26 +100,18 @@ test('getData', () => {
   expect(range.getValues).toHaveBeenCalledTimes(1)
 })
 
+describe('geoCols', () => {
+  test('geoCols not yet added to sheet', () => {
+    expect.assertions(2)
 
-describe('standardCols', () => {
-  const _xyCols = global.xyCols
-  beforeEach(() => {
-    global.xyCols = jest.fn()
-  })
-  afterEach(() => {
-    global.xyCols = _xyCols
-  })
-
-  test('standardCols no geocode cols', () => {
-    expect.assertions(1)
-
-    SpreadsheetApp.returnRangeDatas.push(NOT_GEOCODED_SHEET)
+    SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
 
     const sheet = SpreadsheetApp.getActiveSheet()
     const data = GEOCLIENT_GEOCODED_DATA
 
-    const cols = standardCols(sheet, data)
+    const cols = geoCols(sheet, data)
 
-    expect (sheet.getRange).toHaveBeenCalledTimes(4)
+    expect(sheet.getRange).toHaveBeenCalledTimes(9)
+    expect(cols).toEqual({name: 4, lng: 5, lat: 6, x: 7, y: 8, bbl: 9, assemblyDistrict: 10})
   })
 })
