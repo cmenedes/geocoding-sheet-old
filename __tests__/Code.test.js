@@ -196,7 +196,7 @@ describe('geocoded', () => {
     expect(SpreadsheetApp.range.setValue.mock.calls[13]).toEqual([mockGeocodeData.geocodeResp.data.bbl])
   }
 
-  test.only('geocoded - projected - not previously geocoded', () => {
+  test('geocoded - projected - not previously geocoded', () => {
     expect.assertions(17)
 
     testGeocoded(MockData.NOT_GEOCODED_SHEET, MockData.GC_PROJECT_DATA_0)
