@@ -85,11 +85,9 @@ test('show', () => {
 test('getData', () => {
   expect.assertions(4)
 
-  const data = NOT_GEOCODED_SHEET
+  SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
 
-  SpreadsheetApp.sheet.data = data
-
-  expect(getData()).toBe(data)
+  expect(getData()).toBe(NOT_GEOCODED_SHEET)
 
   expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
 
