@@ -108,6 +108,7 @@ function geocoded(data) {
   }
 }
 
+/* for testing only */
 try {
   global.onInstall = onInstall
   global.onOpen = onOpen
