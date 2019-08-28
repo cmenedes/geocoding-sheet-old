@@ -174,32 +174,48 @@ describe('geocoded', () => {
 
     expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[9]).toEqual([2, 4])
-    expect(SpreadsheetApp.range.setValue.mock.calls[7]).toEqual([mockGeocodeData.name])
+    let firstGetRange = mockGeocodeData.projected ? 9 : 7
+    let firstSetValue = mockGeocodeData.projected ? 7 : 5
+
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 4])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.name])
     
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[10]).toEqual([2, 5])
-    expect(SpreadsheetApp.range.setValue.mock.calls[8]).toEqual([mockGeocodeData.lng])
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 5])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.lng])
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[11]).toEqual([2, 6])
-    expect(SpreadsheetApp.range.setValue.mock.calls[9]).toEqual([mockGeocodeData.lat])
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 6])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.lat])
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[12]).toEqual([2, 7])
-    expect(SpreadsheetApp.range.setValue.mock.calls[10]).toEqual([mockGeocodeData.x])
+    if (!mockGeocodeData.projected) {
+      expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 7])
+      expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.x])
+  
+      expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 8])
+      expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.y])
+    }
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 7])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.x])
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[13]).toEqual([2, 8])
-    expect(SpreadsheetApp.range.setValue.mock.calls[11]).toEqual([mockGeocodeData.y])
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 8])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.y])
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[14]).toEqual([2, 9])
-    expect(SpreadsheetApp.range.setValue.mock.calls[12]).toEqual([mockGeocodeData.geocodeResp.data.assemblyDistrict])
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 9])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.geocodeResp.data.assemblyDistrict])
 
-    expect(SpreadsheetApp.sheet.getRange.mock.calls[15]).toEqual([2, 10])
-    expect(SpreadsheetApp.range.setValue.mock.calls[13]).toEqual([mockGeocodeData.geocodeResp.data.bbl])
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([2, 10])
+    expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.geocodeResp.data.bbl])
   }
 
-  test('geocoded - projected - not previously geocoded', () => {
+  test.only('geocoded - projected - not previously geocoded', () => {
     expect.assertions(17)
 
     testGeocoded(MockData.NOT_GEOCODED_SHEET, MockData.GC_PROJECT_DATA_0)
+  })
+
+  test('geocoded - not projected - not previously geocoded', () => {
+    expect.assertions(12)
+
+    testGeocoded(MockData.NOT_GEOCODED_SHEET, MockData.GC_DATA_0)
   })
 
   test('ambiguous - not projected - not previously geocoded', () => {
