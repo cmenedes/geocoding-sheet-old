@@ -39,9 +39,7 @@ const resetMocks = () => {
     } else {
       data = sheet.data[row - 1][col - 1]
     } 
-    range.data = data
-    console.warn(data);
-    
+    range.data = data    
     return range
   })
   SpreadsheetApp.getUi = jest.fn().mockImplementation(() => {
