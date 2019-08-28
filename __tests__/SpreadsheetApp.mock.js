@@ -10,7 +10,8 @@ const SpreadsheetApp = {sheet, range}
 const resetMocks = () => {
   sheet.data = []
   range.oneHeaderCellSelected = false
-
+  addedCols = 0
+  
   menuItem.addToUi = jest.fn()
   addonMenu.addItem = jest.fn().mockImplementation((name, callback) => {
     return menuItem
