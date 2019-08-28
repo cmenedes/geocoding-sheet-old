@@ -1,12 +1,14 @@
 const menuItem = {}
 const addonMenu = {}
 const ui = {}
-const range = {returnValues: null}
+const range = {returnValues: []}
 const sheet = {}
 
-const SpreadsheetApp = {range}
+const SpreadsheetApp = {returnRangeDatas: [], range}
 
 const resetMocks = () => {
+  SpreadsheetApp.returnRangeDatas = []
+  
   menuItem.addToUi = jest.fn()
   addonMenu.addItem = jest.fn().mockImplementation((name, callback) => {
     return menuItem
@@ -14,11 +16,16 @@ const resetMocks = () => {
   ui.createAddonMenu = jest.fn().mockImplementation(() => {
     return addonMenu
   })
-  range.returnValues = null
+  range.returnValues = []
   range.getValues = jest.fn().mockImplementation(() => {
-    return range.returnValues
+    return range.returnValues.shift()
   })
+  range.setValue = jest.fn()
   sheet.getDataRange = jest.fn().mockImplementation(() => {
+    return range
+  })
+  sheet.getRange = jest.fn().mockImplementation(() => {
+    range.rangeData = SpreadsheetApp.returnRangeDatas.shift()
     return range
   })
   SpreadsheetApp.getUi = jest.fn().mockImplementation(() => {

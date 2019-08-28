@@ -91,7 +91,38 @@ class App {
     $(window).resize($.proxy(this.setMapSize, this))
     this.tabs.on('change', this.setMapSize, this)
     this.locationMgr.on('geocoded', this.showPopup, this)
+    this.sheetGeocoder.on('batch-end', this.zoom, this)
+    this.sheetGeocoder.on('geocoded', this.syncFeature, this)
+    this.sheetGeocoder.on('ambiguous', this.ambiguous, this)
     this.update()
+  }
+  ambiguous(event) {
+    const feature = event.feature
+    const data = event.data
+    if (data.geocodeResp && data.geocodeResp.possible) {
+      const id = feature.getId()
+      const result = data.geocodeResp
+      const opt = $(`#review option[value="${id}"]`)
+      const row = id + 1
+      const optHtml = `(${row}) ${result.input}`
+      if (!opt.length) {
+        $('#review').append(
+          $('<option></option>').data('feature', feature)
+            .html(optHtml)
+            .attr('title', `Row ${row}`).val(id)
+        );
+      } else {
+        opt.html(optHtml)
+      }
+    }
+  }
+  syncFeature(event) {
+    const feature = event.feature
+    $(`#review option[value="${feature.getId()}"]`).remove()
+  }
+  zoom() {
+    const map = this.map
+    map.getView().fit(this.sheetGeocoder.geocodedBounds, {size: map.getSize(), duration: 500});
   }
   review() {
     const id = $('#review').val()

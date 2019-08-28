@@ -85,30 +85,12 @@ class SheetGeocoder extends EventHandling {
       this.trigger('geocoded', {feature, data})
       //$('#review option[value="' + id + '"]').remove();
     } else {
-      this.trigger('ambiguos', {feature, data})
-      /*
-      if (data.geocodeResp && data.geocodeResp.possible) {
-        var result = data.geocodeResp;
-        var opt = $('#review option[value="' + id + '"]');
-        var row = id + 1;
-        var optHtml = '(' + row + ') ' + result.input;
-        if (!opt.length) {
-          $('#review').append(
-            $('<option></option>').data('feature', feature)
-              .html(optHtml)
-              .attr('title', 'Row ' + row).val(id)
-          );
-        } else {
-          opt.html(optHtml);
-        }
-      }
-      */
+      this.trigger('ambiguous', {feature, data})
     }
     //errorCount()        
     if (this.geocodeAll && this.countDown === 0) {
       this.geocodeAll = false
       this.trigger('batch-end')
-      //map.getView().fit(this.geocodedBounds, {size: map.getSize(), duration: 500});
     }
     google.script.run.withSuccessHandler($.proxy(this.updateFeature, this)).geocoded(data)
   }

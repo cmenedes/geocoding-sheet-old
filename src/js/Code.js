@@ -108,14 +108,12 @@ function geocoded(data) {
   }
 }
 
-/* for testing only */
-try {
-  global.onInstall = onInstall
-  global.onOpen = onOpen
-  global.show = show
-  global.getData = getData
-  global.standardCols = standardCols
-  global.geoCols = geoCols
-  global.setFields = setFields
-  global.geocoded = geocoded
-} catch(ignore) {}
+/* for testing only - removed by build */
+global.onInstall = onInstall
+global.onOpen = onOpen
+global.show = show
+global.getData = getData
+global.standardCols = standardCols
+global.geoCols = geoCols
+global.setFields = setFields
+global.geocoded = geocoded

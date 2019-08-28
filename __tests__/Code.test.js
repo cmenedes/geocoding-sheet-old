@@ -1,11 +1,25 @@
-import $ from 'jquery'
-import fs from 'fs'
-import path from 'path'
 import google from './goog.mock'
 import HtmlService from './HtmlService.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 import goog from './goog.mock';
 import Code from '../src/js/Code'
+
+const NOT_GEOCODED_SHEET = [
+  ['num', 'street', 'city'],
+  [59, 'mainden', 'mn'],
+  ['102-25', '67 dr', 'qn'],
+  [2, 'broadway', '']
+]
+
+const GEOCLIENT_GEOCODED_DATA = {
+  projected: 'EPSG:2263',
+  row: 0,
+  columns: ['num', 'street', 'city'],
+  cells: [59, 'maiden', 'mn'],
+  geocodeResp: {input: '59 maiden, mn'},
+  requestedFields: ['bbl', 'assemblyDistrict'],
+  interactive: false
+}
 
 beforeEach(() => {
   HtmlService.resetMocks()
@@ -71,7 +85,7 @@ test('show', () => {
 test('getData', () => {
   expect.assertions(4)
 
-  SpreadsheetApp.range.returnValues = 'mock-values'
+  SpreadsheetApp.range.returnValues = ['mock-values']
 
   expect(getData()).toBe('mock-values')
 
@@ -82,4 +96,28 @@ test('getData', () => {
 
   const range = sheet.getDataRange.mock.results[0].value
   expect(range.getValues).toHaveBeenCalledTimes(1)
+})
+
+
+describe('standardCols', () => {
+  const _xyCols = global.xyCols
+  beforeEach(() => {
+    global.xyCols = jest.fn()
+  })
+  afterEach(() => {
+    global.xyCols = _xyCols
+  })
+
+  test('standardCols no geocode cols', () => {
+    expect.assertions(1)
+
+    SpreadsheetApp.returnRangeDatas.push(NOT_GEOCODED_SHEET)
+
+    const sheet = SpreadsheetApp.getActiveSheet()
+    const data = GEOCLIENT_GEOCODED_DATA
+
+    const cols = standardCols(sheet, data)
+
+    expect (sheet.getRange).toHaveBeenCalledTimes(4)
+  })
 })
