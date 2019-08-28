@@ -116,17 +116,13 @@ test('getData', () => {
 })
 
 describe('geoCols', () => {
-  //have to still test that header row values get set
-  test('geoCols not yet added to sheet', () => {
-    expect.assertions(8)
-
-    SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
+  const testGeoCols = (mockSheetData, mockGeocodeData) => {
+    SpreadsheetApp.sheet.data = mockSheetData
 
     const sheet = SpreadsheetApp.getActiveSheet()
-
-    const cols = geoCols(sheet, FIRST_TIME_GC_DATA)
-
-    expect(sheet.getRange).toHaveBeenCalledTimes(9)
+    
+    const cols = geoCols(sheet, mockGeocodeData)
+        
     expect(cols.name).toBe(4)
     expect(cols.lng).toBe(5)
     expect(cols.lat).toBe(6)
@@ -134,24 +130,50 @@ describe('geoCols', () => {
     expect(cols.y).toBe(8)
     expect(cols.assemblyDistrict).toBe(9)
     expect(cols.bbl).toBe(10)
+    
+    expect(sheet.getRange.mock.calls[0]).toEqual([1, 1, 1, mockGeocodeData.cells.length])
+    
+    expect(sheet.getRange.mock.calls[1]).toEqual([1, 4])
+    expect(SpreadsheetApp.range.setValue.mock.calls[0]).toEqual([LOCATION_NAME_COL])
+    
+    expect(sheet.getRange.mock.calls[2]).toEqual([1, 5])
+    expect(SpreadsheetApp.range.setValue.mock.calls[1]).toEqual([LONGITUDE_COL])
+    
+    expect(sheet.getRange.mock.calls[3]).toEqual([1, 6])
+    expect(SpreadsheetApp.range.setValue.mock.calls[2]).toEqual([LATITUDE_COL])
+    
+    expect(sheet.getRange.mock.calls[4]).toEqual([1, 1, 1, mockGeocodeData.cells.length])
+    
+    expect(sheet.getRange.mock.calls[5]).toEqual([1, 7])
+    expect(SpreadsheetApp.range.setValue.mock.calls[3]).toEqual([PROJECTED_X_COL])
+    
+    expect(sheet.getRange.mock.calls[6]).toEqual([1, 8])
+    expect(SpreadsheetApp.range.setValue.mock.calls[4]).toEqual([PROJECTED_Y_COL])
+
+    return sheet
+  }
+
+  test('geoCols not yet added to sheet', () => {
+    expect.assertions(25)
+
+    const sheet = testGeoCols(NOT_GEOCODED_SHEET, FIRST_TIME_GC_DATA)
+
+    expect(sheet.getRange).toHaveBeenCalledTimes(9)
+    expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(7)
+    
+    expect(sheet.getRange.mock.calls[7]).toEqual([1, 9])
+    expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([FIRST_TIME_GC_DATA.requestedFields[0]])
+    
+    expect(sheet.getRange.mock.calls[8]).toEqual([1, 10])
+    expect(SpreadsheetApp.range.setValue.mock.calls[6]).toEqual([FIRST_TIME_GC_DATA.requestedFields[1]])    
   })
 
   test('geoCols previously added to sheet', () => {
-    expect.assertions(8)
+    expect.assertions(21)
 
-    SpreadsheetApp.sheet.data = GEOCODED_SHEET
-
-    const sheet = SpreadsheetApp.getActiveSheet()
-
-    const cols = geoCols(sheet, ANOTHER_TIME_GC_DATA)
+    const sheet = testGeoCols(GEOCODED_SHEET, ANOTHER_TIME_GC_DATA)
 
     expect(sheet.getRange).toHaveBeenCalledTimes(7)
-    expect(cols.name).toBe(4)
-    expect(cols.lng).toBe(5)
-    expect(cols.lat).toBe(6)
-    expect(cols.x).toBe(7)
-    expect(cols.y).toBe(8)
-    expect(cols.assemblyDistrict).toBe(9)
-    expect(cols.bbl).toBe(10)
+    expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
   })
 })

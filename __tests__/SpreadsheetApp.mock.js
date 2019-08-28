@@ -4,7 +4,7 @@ const ui = {}
 const range = {data: []}
 const sheet = {data: []}
 
-const SpreadsheetApp = {sheet}
+const SpreadsheetApp = {sheet, range}
 
 const resetMocks = () => {
   sheet.data = []
