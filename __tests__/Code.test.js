@@ -11,6 +11,13 @@ const NOT_GEOCODED_SHEET = [
   [2, 'broadway', '']
 ]
 
+const GEOCODED_SHEET = [
+  ['num', 'street', 'boro', 'LOCATION_NAME', 'LNG', 'LAT', 'X', 'Y', 'assemblyDistrict', 'bbl'],
+  [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
+  ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', 40.72673236, -73.85073033, 1025623, 204080, 28, 4021350059],
+  [2, 'broadway', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined]
+]
+
 const GEOCLIENT_GEOCODED_DATA = {
   projected: 'EPSG:2263',
   row: 0,
@@ -103,6 +110,20 @@ describe('geoCols', () => {
     expect.assertions(2)
 
     SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
+
+    const sheet = SpreadsheetApp.getActiveSheet()
+    const data = GEOCLIENT_GEOCODED_DATA
+
+    const cols = geoCols(sheet, data)
+
+    expect(sheet.getRange).toHaveBeenCalledTimes(9)
+    expect(cols).toEqual({name: 4, lng: 5, lat: 6, x: 7, y: 8, bbl: 9, assemblyDistrict: 10})
+  })
+
+  test('geoCols previously added to sheet', () => {
+    expect.assertions(2)
+
+    SpreadsheetApp.sheet.data = GEOCODED_SHEET
 
     const sheet = SpreadsheetApp.getActiveSheet()
     const data = GEOCLIENT_GEOCODED_DATA
