@@ -67,3 +67,19 @@ test('show', () => {
   expect(ui.showSidebar).toHaveBeenCalledTimes(1)
   expect(ui.showSidebar.mock.calls[0][0]).toBe(page)
 })
+
+test('getData', () => {
+  expect.assertions(4)
+
+  SpreadsheetApp.range.returnValues = 'mock-values'
+
+  expect(getData()).toBe('mock-values')
+
+  expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
+
+  const sheet = SpreadsheetApp.getActiveSheet.mock.results[0].value
+  expect(sheet.getDataRange).toHaveBeenCalledTimes(1)
+
+  const range = sheet.getDataRange.mock.results[0].value
+  expect(range.getValues).toHaveBeenCalledTimes(1)
+})

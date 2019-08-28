@@ -1,10 +1,10 @@
 const menuItem = {}
 const addonMenu = {}
 const ui = {}
-const range = {}
+const range = {returnValues: null}
 const sheet = {}
 
-const SpreadsheetApp = {}
+const SpreadsheetApp = {range}
 
 const resetMocks = () => {
   menuItem.addToUi = jest.fn()
@@ -14,7 +14,10 @@ const resetMocks = () => {
   ui.createAddonMenu = jest.fn().mockImplementation(() => {
     return addonMenu
   })
-  range.getValues = jest.fn()
+  range.returnValues = null
+  range.getValues = jest.fn().mockImplementation(() => {
+    return range.returnValues
+  })
   sheet.getDataRange = jest.fn().mockImplementation(() => {
     return range
   })
