@@ -201,4 +201,18 @@ describe('geocoded', () => {
 
     testGeocoded(MockData.NOT_GEOCODED_SHEET, MockData.GC_PROJECT_DATA_0)
   })
+
+  test.only('ambiguous - not projected - not previously geocoded', () => {
+    expect.assertions(1)
+
+    SpreadsheetApp.sheet.data = MockData.NOT_GEOCODED_SHEET
+
+    const result = geocoded(MockData.GC_DATA_AMBIGUOUS)
+
+    console.warn(SpreadsheetApp.range.setValue.mock.calls);
+    
+    expect(SpreadsheetApp.sheet.getRange.mock.calls[6]).toEqual([4, 1, 1, MockData.NOT_GEOCODED_SHEET[0].length + 3 + MockData.GC_DATA_AMBIGUOUS.requestedFields.length])
+    //expect(SpreadsheetApp.range.setValue.mock.calls[5]).toEqual([CORRECTED_COLOR])
+
+  })
 })

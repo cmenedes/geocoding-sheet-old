@@ -3,11 +3,13 @@ const addonMenu = {}
 const ui = {}
 const range = {data: []}
 const sheet = {data: []}
+let addedCols = 0
 
 const SpreadsheetApp = {sheet, range}
 
 const resetMocks = () => {
   sheet.data = []
+  range.oneHeaderCellSelected = false
 
   menuItem.addToUi = jest.fn()
   addonMenu.addItem = jest.fn().mockImplementation((name, callback) => {
@@ -19,12 +21,18 @@ const resetMocks = () => {
   range.getValues = jest.fn().mockImplementation(() => {
     return range.data
   })
-  range.setValue = jest.fn()
+  range.setValue = jest.fn().mockImplementation(value => {
+    if (range.oneHeaderCellSelected) {
+      addedCols++
+    }
+    range.oneHeaderCellSelected = false
+  })
   sheet.getDataRange = jest.fn().mockImplementation(() => {
     range.data = sheet.data
     return range
   })
   sheet.getRange = jest.fn().mockImplementation((row, col, numRows, numCols) => {
+    range.oneHeaderCellSelected = row === 1 && col && !numRows && !numCols
     let data
     if (!isNaN(numCols)) {
       data = []
@@ -44,7 +52,7 @@ const resetMocks = () => {
   })
   range.setBackground = jest.fn()
   sheet.getLastColumn = jest.fn().mockImplementation(() => {
-    return sheet.data[0].length
+    return sheet.data[0].length + addedCols
   })
   SpreadsheetApp.getUi = jest.fn().mockImplementation(() => {
     return ui

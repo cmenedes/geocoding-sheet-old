@@ -60,5 +60,13 @@ export default {
     geocodeResp: GEOCODE_RESP,
     requestedFields: ['assemblyDistrict', 'bbl'],
     interactive: false
+  },
+  GC_DATA_AMBIGUOUS: {
+    projected: '',
+    row: 3,
+    columns: ['num', 'street', 'city'],
+    cells: [2, 'broadway', ''],
+    requestedFields: ['assemblyDistrict', 'bbl'],
+    interactive: false
   }
 }

@@ -83,7 +83,6 @@ class SheetGeocoder extends EventHandling {
       this.projected(data, coords)
       this.geocodedBounds = this.geocodedBounds ? extend(this.geocodedBounds, ext) : ext;
       this.trigger('geocoded', {feature, data})
-      //$('#review option[value="' + id + '"]').remove();
     } else {
       this.trigger('ambiguous', {feature, data})
     }
