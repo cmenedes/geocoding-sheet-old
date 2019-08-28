@@ -126,7 +126,7 @@ test('getData', () => {
 })
 
 describe('geoCols', () => {
-  
+
   const testGeoCols = (mockSheetData, mockGeocodeData) => {
     SpreadsheetApp.sheet.data = mockSheetData
 
@@ -134,8 +134,6 @@ describe('geoCols', () => {
     
     const cols = geoCols(sheet, mockGeocodeData)
         
-    console.warn(cols);
-    
     expect(cols.name).toBe(4)
     expect(cols.lng).toBe(5)
     expect(cols.lat).toBe(6)
