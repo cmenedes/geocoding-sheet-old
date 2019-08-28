@@ -6,7 +6,7 @@ import Code from '../src/js/Code'
 
 const NOT_GEOCODED_SHEET = [
   ['num', 'street', 'city'],
-  [59, 'mainden', 'mn'],
+  [59, 'maiden', 'mn'],
   ['102-25', '67 dr', 'qn'],
   [2, 'broadway', '']
 ]
@@ -20,17 +20,7 @@ const GEOCODED_SHEET = [
 
 const GC_PROJECT_DATA_0 = {
   projected: 'EPSG:2263',
-  row: 0,
-  columns: ['num', 'street', 'city'],
-  cells: [59, 'maiden', 'mn'],
-  geocodeResp: {input: '59 maiden, mn'},
-  requestedFields: ['assemblyDistrict', 'bbl'],
-  interactive: false
-}
-
-const GC_DATA_0 = {
-  projected: '',
-  row: 0,
+  row: 1,
   columns: ['num', 'street', 'city'],
   cells: [59, 'maiden', 'mn'],
   geocodeResp: {input: '59 maiden, mn'},
@@ -40,11 +30,21 @@ const GC_DATA_0 = {
 
 const GC_PROJECT_DATA_1 = {
   projected: 'EPSG:2263',
-  row: 0,
+  row: 1,
   columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
   cells: [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
   geocodeResp: {input: '59 maiden, mn'},
   requestedFields: ['bbl', 'assemblyDistrict'],
+  interactive: false
+}
+
+const GC_DATA_0 = {
+  projected: '',
+  row: 1,
+  columns: ['num', 'street', 'city'],
+  cells: [59, 'maiden', 'mn'],
+  geocodeResp: {input: '59 maiden, mn'},
+  requestedFields: ['assemblyDistrict', 'bbl'],
   interactive: false
 }
 
@@ -204,4 +204,17 @@ describe('geoCols', () => {
     expect(SpreadsheetApp.range.setValue).toHaveBeenCalledTimes(5)
   })
 
+})
+
+describe('geocoded', () => {
+  test('geocoded - projected - not previously geocoded', () => {
+    expect.assertions(2)
+
+    SpreadsheetApp.sheet.data = NOT_GEOCODED_SHEET
+
+    const result = geocoded(GC_PROJECT_DATA_0)
+
+    expect(result.columns).toEqual(['num', 'street', 'city'])
+    expect(result.cells).toEqual([59, 'maiden', 'mn'])
+  })
 })

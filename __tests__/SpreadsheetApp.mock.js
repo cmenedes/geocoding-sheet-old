@@ -42,6 +42,10 @@ const resetMocks = () => {
     range.data = data    
     return range
   })
+  range.setBackground = jest.fn()
+  sheet.getLastColumn = jest.fn().mockImplementation(() => {
+    return sheet.data[0].length
+  })
   SpreadsheetApp.getUi = jest.fn().mockImplementation(() => {
     return ui
   })
