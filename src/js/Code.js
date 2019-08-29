@@ -79,10 +79,13 @@ function geoCols(sheet, data) {
   return cols;
 }
 
-function setFields(sheet, row, cols, data) {  
+function setFields(sheet, row, cols, data) {
+  console.warn('========================================');
+  
   var fields = data.requestedFields;
   for (var i = 0; i < fields.length; i++) {
     var field = fields[i];
+    console.warn(field, row, cols[field], cols);
     sheet.getRange(row, cols[field]).setValue(data.geocodeResp.data[field] || '');
   };
 }
