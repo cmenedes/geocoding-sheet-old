@@ -203,7 +203,6 @@ describe('geocoded', () => {
     }
     expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([row, firstCol++])
     expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.geocodeResp.data.assemblyDistrict])
-
     
     expect(SpreadsheetApp.sheet.getRange.mock.calls[firstGetRange++]).toEqual([row, firstCol++])
     expect(SpreadsheetApp.range.setValue.mock.calls[firstSetValue++]).toEqual([mockGeocodeData.geocodeResp.data.bbl])
