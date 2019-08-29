@@ -5,8 +5,8 @@ import Conf from '../src/js/Conf'
 import CsvAddr from 'nyc-lib/nyc/ol/format/CsvAddr'
 import Feature from 'ol/Feature'
 import google from './goog.mock'
-import goog from './goog.mock';
 import MockData from './Data.mock'
+import SpreadsheetApp from './SpreadsheetApp.mock'
 
 import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
@@ -150,7 +150,7 @@ describe('getData', () => {
   test('getData', () => {
     expect.assertions(8)
   
-    goog.returnData = MockData.NOT_GEOCODED_SHEET_PROJECT
+    google.returnData = MockData.NOT_GEOCODED_SHEET_PROJECT
   
     const geo = new SheetGeocoder({source: new Source()})
   
@@ -172,18 +172,37 @@ describe('getData', () => {
   })
 })
 
-describe.only('gotData', () => {
-  
-  test('gotData', () => {
+describe('gotData', () => {
+  const gsGeocoded = geocoded
+  const sheetGeoGeocoded = SheetGeocoder.prototype.geocoded
+  const setGeometry = CsvAddr.prototype.setGeometry
+  beforeEach(() => {
+    geocoded = jest.fn()
+    SheetGeocoder.prototype.geocoded = jest.fn()
+    CsvAddr.prototype.setGeometry = jest.fn().mockImplementation((feature, geocodeResult) => {
+      feature.dispatchEvent('change')
+    })
+    afterEach(() => {
+      geocoded = gsGeocoded
+      SheetGeocoder.prototype.geocoded = sheetGeoGeocoded
+      CsvAddr.prototype.setGeometry = setGeometry
+    })
+  })
+
+  test('gotData geocodeAll is true', () => {
     expect.assertions(1)
 
+    const features = MockData.NOT_GEOCODED_FEATURES
+    const sheet = MockData.NOT_GEOCODED_SHEET_PROJECT
+
     const geo = new SheetGeocoder({
-      source: new Source({features: MockData.FEATURES})
+      source: new Source({features: features})
     })
 
     geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = true
 
-    //geo.gotData(MockData.GEOCODED_SHEET)
+    geo.gotData(sheet)
 
     expect(true).toBe(true)
   })

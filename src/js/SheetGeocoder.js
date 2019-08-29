@@ -49,7 +49,7 @@ class SheetGeocoder extends EventHandling {
         featureSource[col] = row[c]
       })
       if (this.doGeocode(featureSource, feature)) {
-      if (feature) source.removeFeature(feature)
+        if (feature) source.removeFeature(feature)
         feature = new Feature(featureSource)
         feature.setId(i)
         feature.set('_interactive', !this.geocodeAll)
