@@ -6,6 +6,7 @@ const format = new CvAddr({})
 
 export default {
   getFormat(conf) {
+    format.locationTemplate = conf.template
     if (conf.nyc) {
       const url = `${conf.url}/search.json?app_id=${conf.id}&app_key=${conf.key}&input=`
       format.geocoder = new Geoclient({url})

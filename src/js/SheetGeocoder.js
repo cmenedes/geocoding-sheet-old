@@ -1,15 +1,14 @@
-import Dialog from 'nyc-lib/nyc/Dialog'
 import EventHandling from 'nyc-lib/nyc/EventHandling';
 import proj4 from 'proj4'
 import extend from 'ol/extent'
 import Format from './Format'
+import Feature from 'ol/Feature'
 
 class SheetGeocoder extends EventHandling {
   constructor(options) {
     super()
     this.source = options.source
     this.projection = options.projection
-    this.dialog = new Dialog()
     this.clear()
   }
   conf(conf) {
@@ -25,8 +24,8 @@ class SheetGeocoder extends EventHandling {
   doGeocode(featureSource, feature) {
     if (feature) {
       const oldInput = feature.get('_input')
-      const newInput = format.replace(format.locationTemplate, featureSource)
-      return oldInput !== newInput
+      const newInput = this.format.replace(this.format.locationTemplate, featureSource)
+      return oldInput.trim() !== newInput.trim()
     }
     return true
   }
@@ -44,19 +43,20 @@ class SheetGeocoder extends EventHandling {
       //$('#review').html('<option value="-1">Review 0 Failures</options>');
     }
     data.forEach((i, row) => {
-      const feature = feature = source.getFeatureById(i)
+      const source = this.source
       const featureSource = {_row_index: i, _columns: columns, _row_data: row}
+      let feature = source.getFeatureById(i)
       columns.forEach((c, col) => {
         featureSource[col] = row[c]
       })
       if (this.doGeocode(featureSource, feature)) {
       if (feature) source.removeFeature(feature)
-        feature = new ol.Feature(featureSource)
+        feature = new Feature(featureSource)
         feature.setId(i)
         feature.set('_interactive', !this.geocodeAll)
         source.addFeature(feature)
         feature.once('change', geocoded)
-        format.setGeometry(feature, featureSource)
+        this.format.setGeometry(feature, featureSource)
       }
     })
   }
