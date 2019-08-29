@@ -70,6 +70,7 @@ class SheetGeocoder extends EventHandling {
       columns: feature.get('_columns'),
       cells: feature.get('_row_data'),
       geocodeResp: feature.get('_geocodeResp'),
+      name: feature.get('_geocodeResp').name,
       requestedFields: this.requestedFields,
       interactive: feature.get('_interactive')
     }

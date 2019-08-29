@@ -2,6 +2,7 @@ import Code from '../src/js/Code'
 
 const GEOCODE_RESP = {
   input: '59 maiden, mn',
+  name: '59 Maiden Lane, Manhattan, NY 10038',
   data: {
     assemblyDistrict: 65,
     bbl: 1000670001

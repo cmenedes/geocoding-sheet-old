@@ -92,7 +92,7 @@ function geocoded(data) {
   var sheet = SpreadsheetApp.getActiveSheet();
   var cols = geoCols(sheet, data);
   if (!isNaN(data.lng)) {
-    sheet.getRange(row, cols.name).setValue(data.name);
+    sheet.getRange(row, cols.name).setValue(data.geocodeResp.name);
     sheet.getRange(row, cols.lng).setValue(data.lng);
     sheet.getRange(row, cols.lat).setValue(data.lat);
     if (data.projected) {
