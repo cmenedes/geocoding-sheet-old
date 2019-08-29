@@ -12,12 +12,14 @@ describe('constructor', () => {
   })
 
   test('constructor', () => {
-    expect.assertions(3)
+    expect.assertions(5)
 
     const geo = new SheetGeocoder({source: 'mock-source', projection: 'mock-proj'})
 
     expect(geo instanceof SheetGeocoder).toBe(true)
     expect(geo instanceof EventHandling).toBe(true)
+    expect(geo.source).toBe('mock-source')
+    expect(geo.projection).toBe('mock-proj')
     expect(SheetGeocoder.prototype.clear).toHaveBeenCalledTimes(1)
 
   })
