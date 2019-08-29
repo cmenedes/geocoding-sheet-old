@@ -195,7 +195,10 @@ describe('gotData', () => {
     const sheet = MockData.NOT_GEOCODED_SHEET_PROJECT
 
     const geo = new SheetGeocoder({
-      source: new Source({features: MockData.NOT_GEOCODED_FEATURES})
+      source: new Source({
+        /* will be cleared because geocodeAll === true */
+        features: MockData.NOT_GEOCODED_FEATURES 
+      })
     })
 
     geo.conf(VALID_NYC_CONF)
