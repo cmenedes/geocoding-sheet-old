@@ -4,6 +4,7 @@ import Source from 'ol/source/Vector'
 import Conf from '../src/js/Conf'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
 import CsvAddr from 'nyc-lib/nyc/ol/format/CsvAddr'
+import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
 
 describe('constructor', () => {
   const clear = SheetGeocoder.prototype.clear
@@ -47,5 +48,22 @@ describe('conf', () => {
     expect(geo.format instanceof CsvAddr).toBe(true)
     expect(geo.format.geocoder instanceof Geoclient).toBe(true)
     expect(geo.format.geocoder.url).toBe('mock-url/search.json?app_id=mock-id&app_key=mock-key&input=&input=')
+  })
+
+  test('conf not nyc', () => {
+    expect.assertions(2)
+
+    Conf.set()
+    const geo = new SheetGeocoder({source: new Source()})
+
+    geo.conf({
+      nyc: false,
+      url: 'mock-url',
+      template: 'mock-template',
+      requestedFields: []
+    })
+
+    expect(geo.format instanceof CsvAddr).toBe(true)
+    expect(geo.format.geocoder instanceof CensusGeocoder).toBe(true)
   })
 })
