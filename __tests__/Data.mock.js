@@ -120,7 +120,7 @@ sheets.forEach((sheet, s) => {
       props[header[j]] = row[j]
     }
     const feature = new Feature(props)
-    feature.setId(i)
+    feature.setId(i - 1)
     if (sheet === GEOCODED_SHEET_PROJECT) {
       GEOCODED_FEATURES.push(feature)
       if (props.lng) {

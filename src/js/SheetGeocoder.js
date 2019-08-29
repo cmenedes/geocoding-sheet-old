@@ -55,7 +55,7 @@ class SheetGeocoder extends EventHandling {
           feature.setId(i)
           feature.set('_interactive', !this.geocodeAll)
           source.addFeature(feature)
-          feature.once('change', geocoded)
+          feature.once('change', $.proxy(this.geocoded, this))
           this.format.setGeometry(feature, featureSource)
         }        
       }

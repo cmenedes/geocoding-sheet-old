@@ -180,7 +180,7 @@ describe('gotData', () => {
     geocoded = jest.fn()
     SheetGeocoder.prototype.geocoded = jest.fn()
     CsvAddr.prototype.setGeometry = jest.fn().mockImplementation((feature, source) => {
-      feature.dispatchEvent('change')
+      feature.dispatchEvent({type: 'change', target: feature})
     })
     afterEach(() => {
       geocoded = gsGeocoded
@@ -190,41 +190,39 @@ describe('gotData', () => {
   })
 
   test('gotData geocodeAll is true', () => {
-    expect.assertions(7)
+    expect.assertions(12)
 
-    const features = MockData.NOT_GEOCODED_FEATURES
     const sheet = MockData.NOT_GEOCODED_SHEET_PROJECT
 
     const geo = new SheetGeocoder({
-      source: new Source({features: features})
+      source: new Source({features: MockData.NOT_GEOCODED_FEATURES})
     })
 
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = true
 
-    geo.gotData(sheet)
+    geo.on('batch-start', data => {
+      expect(data).toBe(MockData.NOT_GEOCODED_SHEET_PROJECT)
+    })
+    geo.gotData(MockData.NOT_GEOCODED_SHEET_PROJECT)
 
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
-
-    expect(geo.format.setGeometry.mock.calls[0][0].getId()).toBe(MockData.NOT_GEOCODED_FEATURES[0].getId())
-    expect(geo.format.setGeometry.mock.calls[1][0].getId()).toBe(MockData.NOT_GEOCODED_FEATURES[1].getId())
-    expect(geo.format.setGeometry.mock.calls[2][0].getId()).toBe(MockData.NOT_GEOCODED_FEATURES[2].getId())
-
-    expect(geo.format.setGeometry.mock.calls[0][1]).toEqual({
-      _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
-      _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[1],
-      _row_index: 1
+    geo.format.setGeometry.mock.calls.forEach((call, i) => {
+      expect(call[0]).toBe(geo.source.getFeatureById(i + 1))
+      expect(call[1]).toEqual({
+        _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
+        _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[i + 1],
+        _row_index: i + 1
+      })
     })
-    expect(geo.format.setGeometry.mock.calls[1][1]).toEqual({
-      _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
-      _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[2],
-      _row_index: 2
-    })
-    expect(geo.format.setGeometry.mock.calls[2][1]).toEqual({
-      _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
-      _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[3],
-      _row_index: 3
+
+    expect(geo.geocoded).toHaveBeenCalledTimes(3)
+    geo.geocoded.mock.calls.forEach((call, i) => {
+      expect(call[0]).toEqual({
+        type: 'change',
+        target: geo.source.getFeatureById(i + 1)
+      })  
     })
   })
-  
+
 })
