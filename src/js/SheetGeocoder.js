@@ -41,21 +41,23 @@ class SheetGeocoder extends EventHandling {
       this.geocodedBounds = null
       this.trigger('batch-start', data)
     }
-    data.forEach((i, row) => {
-      const source = this.source
-      const featureSource = {_row_index: i, _columns: columns, _row_data: row}
-      let feature = source.getFeatureById(i)
-      columns.forEach((c, col) => {
-        featureSource[col] = row[c]
-      })
-      if (this.doGeocode(featureSource, feature)) {
-        if (feature) source.removeFeature(feature)
-        feature = new Feature(featureSource)
-        feature.setId(i)
-        feature.set('_interactive', !this.geocodeAll)
-        source.addFeature(feature)
-        feature.once('change', geocoded)
-        this.format.setGeometry(feature, featureSource)
+    data.forEach((row, i) => {
+      if (i > 0) {
+        const source = this.source
+        const featureSource = {_row_index: i, _columns: columns, _row_data: row}
+        let feature = source.getFeatureById(i)
+        columns.forEach((c, col) => {
+          featureSource[col] = row[c]
+        })
+        if (this.doGeocode(featureSource, feature)) {
+          if (feature) source.removeFeature(feature)
+          feature = new Feature(featureSource)
+          feature.setId(i)
+          feature.set('_interactive', !this.geocodeAll)
+          source.addFeature(feature)
+          feature.once('change', geocoded)
+          this.format.setGeometry(feature, featureSource)
+        }        
       }
     })
   }
