@@ -46,6 +46,8 @@ class SheetGeocoder extends EventHandling {
         const source = this.source
         const featureSource = {_row_index: i, _columns: columns, _row_data: row}
         let feature = source.getFeatureById(i)
+        console.warn(i, source.getFeatures().length, feature);
+        
         columns.forEach((c, col) => {
           featureSource[col] = row[c]
         })

@@ -228,4 +228,43 @@ describe('gotData', () => {
     })
   })
 
+  test('gotData geocodeAll is false', () => {
+    expect.assertions(11)
+
+    const sheet = MockData.GEOCODED_SHEET_PROJECT
+
+    const geo = new SheetGeocoder({
+      source: new Source({
+        /* will not be cleared because geocodeAll === false */
+        features: MockData.GEOCODED_FEATURES 
+      })
+    })
+
+    geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = false
+
+    geo.on('batch-start', data => {
+      fail('no batch should be started')
+    })
+    geo.gotData(MockData.NOT_GEOCODED_SHEET_PROJECT)
+
+    expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
+    geo.format.setGeometry.mock.calls.forEach((call, i) => {
+      expect(call[0]).toBe(geo.source.getFeatureById(i + 1))
+      expect(call[1]).toEqual({
+        _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
+        _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[i + 1],
+        _row_index: i + 1
+      })
+    })
+
+    expect(geo.geocoded).toHaveBeenCalledTimes(3)
+    geo.geocoded.mock.calls.forEach((call, i) => {
+      expect(call[0]).toEqual({
+        type: 'change',
+        target: geo.source.getFeatureById(i + 1)
+      })  
+    })
+  })
+
 })
