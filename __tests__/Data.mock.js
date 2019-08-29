@@ -1,4 +1,6 @@
 import Code from '../src/js/Code'
+import Feature from 'ol/Feature'
+import proj4 from 'proj4'
 
 const GEOCODE_RESP = {
   input: '59 maiden, mn',
@@ -9,7 +11,7 @@ const GEOCODE_RESP = {
   }
 }
 
-export default {
+const data = {
   NOT_GEOCODED_SHEET_PROJECT: [
     ['num', 'street', 'city'],
     [59, 'maiden', 'mn'],
@@ -106,5 +108,21 @@ export default {
     },
     requestedFields: ['assemblyDistrict', 'bbl'],
     interactive: true
-  }
+  },
+  FEATURES: []
 }
+
+const sheet = data.GEOCODED_SHEET
+const header = sheet[0]
+for (let i = 1; i < sheet.length; i++) {
+  const props = {}
+  const row = sheet[i]
+  for (let j = 0; j < row.length; j++) {
+    props[header[j]] = row[j]
+  }
+  const feature = new Feature(props)
+  if (props.lng) feature.setGeometry(proj4('EPSG:4326', 'EPSG:3857', [props.lng, props.lat]))
+  data.FEATURES.push(feature)
+}
+
+export default data

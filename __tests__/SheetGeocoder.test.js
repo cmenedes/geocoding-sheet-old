@@ -171,3 +171,21 @@ describe('getData', () => {
     expect(geo.gotData.mock.calls[1][0]).toBe(MockData.NOT_GEOCODED_SHEET_PROJECT)
   })
 })
+
+describe.only('gotData', () => {
+  
+  test('gotData', () => {
+    expect.assertions(1)
+
+    const geo = new SheetGeocoder({
+      source: new Source({features: MockData.FEATURES})
+    })
+
+    geo.conf(VALID_NYC_CONF)
+
+    //geo.gotData(MockData.GEOCODED_SHEET)
+
+    expect(true).toBe(true)
+  })
+  
+})
