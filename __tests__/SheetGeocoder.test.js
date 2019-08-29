@@ -67,3 +67,35 @@ describe('conf', () => {
     expect(geo.format.geocoder instanceof CensusGeocoder).toBe(true)
   })
 })
+
+test('clear', () => {
+  expect.assertions(8)
+
+  const source = {clear: jest.fn()}
+
+  const geo = new SheetGeocoder({source: source})
+
+  geo.geocodeAll = true
+  geo.countDown = 100
+  geo.geocodedBounds = 'mock-bounds'
+
+  geo.clear()
+
+  expect(geo.geocodeAll).toBe(false)
+  expect(geo.countDown).toBe(0)
+  expect(geo.geocodedBounds).toBeNull()
+  expect(source.clear).toHaveBeenCalledTimes(2)
+
+  geo.source = null
+
+  geo.geocodeAll = true
+  geo.countDown = 200
+  geo.geocodedBounds = 'another-mock-bounds'
+
+  geo.clear()
+
+  expect(geo.geocodeAll).toBe(false)
+  expect(geo.countDown).toBe(0)
+  expect(geo.geocodedBounds).toBeNull()
+  expect(source.clear).toHaveBeenCalledTimes(2)
+})
