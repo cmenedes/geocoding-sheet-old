@@ -148,7 +148,7 @@ describe('getData', () => {
   })
 
   test('getData', () => {
-    expect.assertions(3)
+    expect.assertions(8)
   
     goog.returnData = MockData.NOT_GEOCODED_SHEET_PROJECT
   
@@ -158,8 +158,16 @@ describe('getData', () => {
   
     geo.getData()
   
+    expect(geo.geocodeAll).toBe(false)
     expect(google.script.run.withSuccessHandler).toHaveBeenCalledTimes(1)
     expect(geo.gotData).toHaveBeenCalledTimes(1)
     expect(geo.gotData.mock.calls[0][0]).toBe(MockData.NOT_GEOCODED_SHEET_PROJECT)
+  
+    geo.getData(true)
+
+    expect(geo.geocodeAll).toBe(true)
+    expect(google.script.run.withSuccessHandler).toHaveBeenCalledTimes(2)
+    expect(geo.gotData).toHaveBeenCalledTimes(2)
+    expect(geo.gotData.mock.calls[1][0]).toBe(MockData.NOT_GEOCODED_SHEET_PROJECT)
   })
 })

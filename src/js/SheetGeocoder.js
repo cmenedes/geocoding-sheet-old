@@ -30,7 +30,7 @@ class SheetGeocoder extends EventHandling {
     return true
   }
   getData(all) {
-    this.geocodeAll = all
+    this.geocodeAll = all === true
     google.script.run.withSuccessHandler($.proxy(this.gotData, this)).getData()
   }
   gotData(data) {
@@ -40,7 +40,6 @@ class SheetGeocoder extends EventHandling {
       this.source.clear()
       this.geocodedBounds = null
       this.trigger('batch-start', data)
-      //$('#review').html('<option value="-1">Review 0 Failures</options>');
     }
     data.forEach((i, row) => {
       const source = this.source
