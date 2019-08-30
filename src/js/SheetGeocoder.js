@@ -46,7 +46,7 @@ class SheetGeocoder extends EventHandling {
         const source = this.source
         const featureSource = {_row_index: i, _columns: columns, _row_data: row}
         let feature = source.getFeatureById(i - 1)
-        columns.forEach((c, col) => {
+        columns.forEach((col, c) => {
           featureSource[col] = row[c]
         })
         if (this.doGeocode(featureSource, feature)) {
@@ -56,7 +56,6 @@ class SheetGeocoder extends EventHandling {
           feature = new Feature(featureSource)
           feature.setId(i - 1)
           feature.set('_interactive', !this.geocodeAll)
-          console.warn('adding', feature.getId());
           source.addFeature(feature)
           feature.once('change', $.proxy(this.geocoded, this))
           this.format.setGeometry(feature, featureSource)

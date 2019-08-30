@@ -11,7 +11,7 @@ const GEOCODE_RESP = {
   }
 }
 const NOT_GEOCODED_SHEET_PROJECT = [
-  ['num', 'street', 'city'],
+  ['num', 'street', 'boro'],
   [59, 'maiden', 'mn'],
   ['102-25', '67 dr', 'qn'],
   [2, 'broadway', '']
@@ -36,7 +36,7 @@ const GC_PROJECT_DATA_0 = {
   x: 982037,
   y: 197460,
   name: '59 Maiden Lane, Manhattan, NY 10038',
-  columns: ['num', 'street', 'city'],
+  columns: ['num', 'street', 'boro'],
   cells: [59, 'maiden', 'mn'],
   geocodeResp: GEOCODE_RESP,
   requestedFields: ['assemblyDistrict', 'bbl'],
@@ -60,7 +60,7 @@ const GC_DATA_0 = {
   row: 1,
   lng: 40.70865853,
   lat: -74.00798212,
-  columns: ['num', 'street', 'city'],
+  columns: ['num', 'street', 'boro'],
   cells: [59, 'maiden', 'mn'],
   geocodeResp: GEOCODE_RESP,
   requestedFields: ['assemblyDistrict', 'bbl'],
@@ -71,7 +71,7 @@ const GC_DATA_NO_BBL = {
   row: 1,
   lng: 40.70865853,
   lat: -74.00798212,
-  columns: ['num', 'street', 'city'],
+  columns: ['num', 'street', 'boro'],
   cells: [59, 'maiden', 'mn'],
   geocodeResp: {
     input: '59 maiden, mn',
@@ -84,7 +84,7 @@ const GC_DATA_NO_BBL = {
 const GC_DATA_AMBIGUOUS = {
   projected: '',
   row: 3,
-  columns: ['num', 'street', 'city'],
+  columns: ['num', 'street', 'boro'],
   cells: [2, 'broadway', ''],
   requestedFields: ['assemblyDistrict', 'bbl'],
   interactive: false

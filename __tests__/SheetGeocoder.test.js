@@ -18,7 +18,7 @@ const VALID_NYC_CONF = {
   url: 'mock-url',
   id: 'mock-id',
   key: 'mock-key',
-  template: 'mock-template',
+  template: '${num) ${street}, ${boro}',
   requestedFields: []
 }
 
@@ -176,6 +176,32 @@ describe('gotData', () => {
   const gsGeocoded = geocoded
   const sheetGeoGeocoded = SheetGeocoder.prototype.geocoded
   const setGeometry = CsvAddr.prototype.setGeometry
+
+  const getGeocodedFeatures = (interactive) => {
+    const features = []
+    MockData.GEOCODED_FEATURES.forEach((f, i) => {
+      const props = f.getProperties()
+      const feature = new Feature(props)
+      const geom = f.getGeometry()
+      feature.setId(f.getId())
+      if (geom) {
+        feature.setGeometry(new Point(geom.getCoordinates()))
+      } else {
+        feature.set('boro', interactive ? 1 : '')
+        feature.set('_input', `${props.num || ''} ${props.street || ''}, `)
+        feature.set('_geocodeResp', {
+          input: `${props.num || ''} ${props.street || ''}, ${interactive ? 1 : ''}`
+        })
+        feature.set('_row_index', i) 
+        feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
+        feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
+        feature.set('_interactive', true)
+      }
+      features.push(feature)
+    })
+    return features
+  }
+
   beforeEach(() => {
     geocoded = jest.fn()
     SheetGeocoder.prototype.geocoded = jest.fn()
@@ -211,8 +237,12 @@ describe('gotData', () => {
 
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
-      expect(call[0]).toBe(geo.source.getFeatureById(i))
+      const feature = geo.source.getFeatureById(i)
+      expect(call[0]).toBe(feature)
       expect(call[1]).toEqual({
+        num: feature.get('num'),
+        street: feature.get('street'),
+        boro: feature.get('boro'),
         _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
         _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[i + 1],
         _row_index: i + 1
@@ -247,14 +277,25 @@ describe('gotData', () => {
       fail('no batch should be started')
     })
 
-    geo.gotData(MockData.NOT_GEOCODED_SHEET_PROJECT)
+    geo.gotData(MockData.GEOCODED_SHEET_PROJECT)
 
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
-      expect(call[0]).toBe(geo.source.getFeatureById(i))
+      const feature = geo.source.getFeatureById(i)
+      expect(call[0]).toBe(feature)
       expect(call[1]).toEqual({
-        _columns: MockData.NOT_GEOCODED_SHEET_PROJECT[0],
-        _row_data: MockData.NOT_GEOCODED_SHEET_PROJECT[i + 1],
+        num: feature.get('num'),
+        street: feature.get('street'),
+        boro: feature.get('boro'),
+        LOCATION_NAME: feature.get('LOCATION_NAME'),
+        LNG: feature.get('LNG'),
+        LAT: feature.get('LAT'),
+        X: feature.get('X'),
+        Y: feature.get('Y'),
+        assemblyDistrict: feature.get('assemblyDistrict'),
+        bbl: feature.get('bbl'),
+        _columns: MockData.GEOCODED_SHEET_PROJECT[0],
+        _row_data: MockData.GEOCODED_SHEET_PROJECT[i + 1],
         _row_index: i + 1
       })
     })
@@ -268,40 +309,64 @@ describe('gotData', () => {
     })
   })
 
-  test('gotData geocodeAll is false - one interactive', () => {
+  test('gotData geocodeAll is false - one interactive changed', () => {
     expect.assertions(11)
 
     const sheet = MockData.GEOCODED_SHEET_PROJECT
-
-    const features = []
-    MockData.GEOCODED_FEATURES.forEach((f, i) => {
-      const props = f.getProperties()
-      const feature = new Feature(props)
-      const geom = f.getGeometry()
-      feature.setId(f.getId())
-      if (geom) {
-        feature.setGeometry(new Point(geom.getCoordinates()))
-      } else {
-        feature.set('boro', 1)
-        feature.set('boro', 1)
-        feature.set('_input', `${props.num || ''} ${props.street || ''}`)
-        feature.set('_geocodeResp', {
-          input: `${props.num || ''} ${props.street || ''}, 1`
-        })
-        feature.set('_row_index', i) 
-        feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
-        feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
-        feature.set('_interactive', true)
-      }
-      features.push(feature)
-    })
-
 
     const geo = new SheetGeocoder({source: new Source()})
 
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = false
-    geo.source.addFeatures(features)
+    geo.source.addFeatures(getGeocodedFeatures(true))
+
+    geo.on('batch-start', data => {
+      fail('no batch should be started')
+    })
+
+    geo.gotData(MockData.GEOCODED_SHEET_PROJECT)
+
+
+    expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
+    geo.format.setGeometry.mock.calls.forEach((call, i) => {
+      const feature = geo.source.getFeatureById(i)
+      expect(call[0]).toBe(feature)
+      expect(call[1]).toEqual({
+        num: feature.get('num'),
+        street: feature.get('street'),
+        boro: feature.get('boro'),
+        LOCATION_NAME: feature.get('LOCATION_NAME'),
+        LNG: feature.get('LNG'),
+        LAT: feature.get('LAT'),
+        X: feature.get('X'),
+        Y: feature.get('Y'),
+        assemblyDistrict: feature.get('assemblyDistrict'),
+        bbl: feature.get('bbl'),
+        _columns: MockData.GEOCODED_SHEET_PROJECT[0],
+        _row_data: MockData.GEOCODED_SHEET_PROJECT[i + 1],
+        _row_index: i + 1
+      })
+    })
+
+    expect(geo.geocoded).toHaveBeenCalledTimes(3)
+    geo.geocoded.mock.calls.forEach((call, i) => {
+      expect(call[0]).toEqual({
+        type: 'change',
+        target: geo.source.getFeatureById(i)
+      })  
+    })
+  })
+
+  test('gotData geocodeAll is false - one interactive unchanged', () => {
+    expect.assertions(11)
+
+    const sheet = MockData.GEOCODED_SHEET_PROJECT
+
+    const geo = new SheetGeocoder({source: new Source()})
+
+    geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = false
+    geo.source.addFeatures(getGeocodedFeatures())
 
     geo.on('batch-start', data => {
       fail('no batch should be started')
@@ -311,8 +376,19 @@ describe('gotData', () => {
 
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
-      expect(call[0]).toBe(geo.source.getFeatureById(i))
+      const feature = geo.source.getFeatureById(i)
+      expect(call[0]).toBe(feature)
       expect(call[1]).toEqual({
+        num: feature.get('num'),
+        street: feature.get('street'),
+        boro: feature.get('boro'),
+        LOCATION_NAME: feature.get('LOCATION_NAME'),
+        LNG: feature.get('LNG'),
+        LAT: feature.get('LAT'),
+        X: feature.get('X'),
+        Y: feature.get('Y'),
+        assemblyDistrict: feature.get('assemblyDistrict'),
+        bbl: feature.get('bbl'),
         _columns: MockData.GEOCODED_SHEET_PROJECT[0],
         _row_data: MockData.GEOCODED_SHEET_PROJECT[i + 1],
         _row_index: i + 1
