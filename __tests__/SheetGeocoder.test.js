@@ -9,9 +9,10 @@ import MockData from './Data.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
 import Point from 'ol/geom/Point'
 import {extend} from 'ol/extent'
-
+import Basemap from 'nyc-lib/nyc/ol/Basemap'
 import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
+import proj4 from 'proj4'
 
 const getBounds = features => {
   let bounds
@@ -523,4 +524,25 @@ describe('geocoded', () => {
 
   })
 
+})
+
+test('projected', () => {
+  expect.assertions(4)
+
+  const data = {}
+  const expected = proj4('EPSG:3857', 'EPSG:2263', Basemap.CENTER)
+
+  const geo = new SheetGeocoder({})
+
+  geo.projected(data, Basemap.CENTER)
+
+  expect(data.x).toBeUndefined()
+  expect(data.y).toBeUndefined()
+
+  geo.projection = 'EPSG:2263'
+
+  geo.projected(data, Basemap.CENTER)
+
+  expect(data.x).toBe(expected[0])
+  expect(data.y).toBe(expected[1])
 })
