@@ -16,7 +16,7 @@ const VALID_NYC_CONF = {
   url: 'mock-url',
   id: 'mock-id',
   key: 'mock-key',
-  template: '${num) ${street}, ${boro}',
+  template: '${num} ${street}, ${boro}',
   requestedFields: []
 }
 
@@ -200,8 +200,8 @@ describe('gotData', () => {
     return features
   }
 
-  const testSetGeometry = (geo, sheet) => {
-    expect(geo.format.setGeometry).toHaveBeenCalledTimes(3)
+  const testSetGeometry = (geo, sheet, times) => {
+    expect(geo.format.setGeometry).toHaveBeenCalledTimes(times)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
       const feature = geo.source.getFeatureById(i)
       expect(call[0]).toBe(feature)
@@ -223,8 +223,8 @@ describe('gotData', () => {
     })
   }
   
-  const testFeatureChangeRunsGeocoded = geo => {
-    expect(geo.geocoded).toHaveBeenCalledTimes(3)
+  const testFeatureChangeRunsGeocoded = (geo, times) => {
+    expect(geo.geocoded).toHaveBeenCalledTimes(times)
     geo.geocoded.mock.calls.forEach((call, i) => {
       expect(call[0]).toEqual({
         type: 'change',
@@ -267,8 +267,8 @@ describe('gotData', () => {
 
     geo.gotData(MockData.NOT_GEOCODED_SHEET_PROJECT)
 
-    testSetGeometry(geo, MockData.NOT_GEOCODED_SHEET_PROJECT)
-    testFeatureChangeRunsGeocoded(geo)
+    testSetGeometry(geo, MockData.NOT_GEOCODED_SHEET_PROJECT, 3)
+    testFeatureChangeRunsGeocoded(geo, 3)
   })
 
   test('gotData geocodeAll is false', () => {
@@ -292,12 +292,12 @@ describe('gotData', () => {
 
     geo.gotData(MockData.GEOCODED_SHEET_PROJECT)
 
-    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT)
-    testFeatureChangeRunsGeocoded(geo)
+    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT, 3)
+    testFeatureChangeRunsGeocoded(geo, 3)
   })
 
   test('gotData geocodeAll is false - one interactive changed', () => {
-    expect.assertions(11)
+    expect.assertions(8)
 
     const sheet = MockData.GEOCODED_SHEET_PROJECT
 
@@ -313,12 +313,12 @@ describe('gotData', () => {
 
     geo.gotData(MockData.GEOCODED_SHEET_PROJECT)
 
-    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT)
-    testFeatureChangeRunsGeocoded(geo)
+    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT, 2)
+    testFeatureChangeRunsGeocoded(geo, 2)
   })
 
   test('gotData geocodeAll is false - one interactive unchanged', () => {
-    expect.assertions(11)
+    expect.assertions(8)
 
     const sheet = MockData.GEOCODED_SHEET_PROJECT
 
@@ -334,8 +334,8 @@ describe('gotData', () => {
 
     geo.gotData(MockData.GEOCODED_SHEET_PROJECT)
 
-    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT)
-    testFeatureChangeRunsGeocoded(geo)
+    testSetGeometry(geo, MockData.GEOCODED_SHEET_PROJECT, 2)
+    testFeatureChangeRunsGeocoded(geo, 2)
   })
 
 })

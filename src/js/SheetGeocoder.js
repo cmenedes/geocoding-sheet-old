@@ -25,7 +25,6 @@ class SheetGeocoder extends EventHandling {
     if (feature) {
       const oldInput = feature.get('_input')
       const newInput = this.format.replace(this.format.locationTemplate, featureSource)
-      //console.warn(feature.getId(), oldInput, newInput);
       return oldInput.trim() !== newInput.trim()
     }
     return true
