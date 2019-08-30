@@ -521,8 +521,8 @@ describe('review', () => {
 
 describe('download', () => {
   const saveGeoJson = LocalStorage.prototype.saveGeoJson
-  const f0 = new Feature({_row_index: 0, X: 982037, Y: 197460, LNG: 40.70865853, LAT: -74.00798212, _input: '59 maiden', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
-  const f1 = new Feature({_row_index: 1, X: 986121, Y: 216099, LNG: 40.75981807, LAT: -73.99324627, _input: '433 w43, mn', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
+  const f0 = new Feature({_row_index: 0, X: 982037, Y: 197460, LAT: 40.70865853, LNG: -74.00798212, _input: '59 maiden', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
+  const f1 = new Feature({_row_index: 1, X: 986121, Y: 216099, LAT: 40.75981807, LNG: -73.99324627, _input: '433 w43, mn', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
 beforeEach(() => {
     f0.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f0.get('X'), f0.get('Y')])))
     f1.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f1.get('X'), f1.get('Y')])))

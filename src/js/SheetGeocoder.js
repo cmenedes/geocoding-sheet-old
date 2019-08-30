@@ -82,8 +82,8 @@ class SheetGeocoder extends EventHandling {
     const ext = geom.getExtent()
       const coords = geom.getCoordinates()
       const ll = proj4('EPSG:3857', 'EPSG:4326', coords)
-      data.lat = ll[0]
-      data.lng = ll[1]
+      data.lng = ll[0]
+      data.lat = ll[1]
       this.projected(data, coords)
       this.geocodedBounds = this.geocodedBounds ? extend(this.geocodedBounds, ext) : ext;
       this.trigger('geocoded', {feature, data})
@@ -99,9 +99,9 @@ class SheetGeocoder extends EventHandling {
   }
   projected(data, coords) {
     if (this.projection) {
-      const xy = proj4('EPSG:3857', this.projection, coords);
-      data.x = xy[0];
-      data.y = xy[1];
+      const xy = proj4('EPSG:3857', this.projection, coords)
+      data.x = xy[0]
+      data.y = xy[1]
     }
   }
   updateFeature(data) {

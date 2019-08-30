@@ -33,21 +33,21 @@ const resetMocks = () => {
   ]
   GEOCODED_SHEET_PROJECT = [
     ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
-    [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
-    ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', 40.72673236, -73.85073033, 1025623, 204080, 28, 4021350059],
+    [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', -74.00798212, 40.70865853, 982037, 197460, 65, 1000670001],
+    ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', -73.85073033, 40.72673236, 1025623, 204080, 28, 4021350059],
     [2, 'broadway', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined]
   ]
   GEOCODED_SHEET = [
     ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, 'assemblyDistrict', 'bbl'],
-    [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 65, 1000670001],
-    ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', 40.72673236, -73.85073033, 28, 4021350059],
+    [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', -74.00798212, 40.70865853, 65, 1000670001],
+    ['102-25', '67 dr', 'qn', '102-25 67 Drive, Queens, NY 11375', -73.85073033, 40.72673236, 28, 4021350059],
     [2, 'broadway', undefined, undefined, undefined, undefined, undefined, undefined]
   ]
   GC_PROJECT_DATA_0 = {
     projected: 'EPSG:2263',
     row: 1,
-    lng: 40.70865853,
-    lat: -74.00798212,
+    lat: 40.70865853,
+    lng: -74.00798212,
     x: 982037,
     y: 197460,
     name: '59 Maiden Lane, Manhattan, NY 10038',
@@ -60,12 +60,12 @@ const resetMocks = () => {
   GC_PROJECT_DATA_1 = {
     projected: 'EPSG:2263',
     row: 1,
-    lng: 40.70865853,
-    lat: -74.00798212,
+    lat: 40.70865853,
+    lng: -74.00798212,
     x: 982037,
     y: 197460,
     columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, PROJECTED_X_COL, PROJECTED_Y_COL, 'assemblyDistrict', 'bbl'],
-    cells: [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', 40.70865853, -74.00798212, 982037, 197460, 65, 1000670001],
+    cells: [59, 'maiden', 'mn', '59 Maiden Lane, Manhattan, NY 10038', -74.00798212, 40.70865853, 982037, 197460, 65, 1000670001],
     geocodeResp: GEOCODE_RESP,
     requestedFields: ['bbl', 'assemblyDistrict'],
     interactive: false
@@ -73,8 +73,8 @@ const resetMocks = () => {
   GC_DATA_0 = {
     projected: '',
     row: 1,
-    lng: 40.70865853,
-    lat: -74.00798212,
+    lat: 40.70865853,
+    lng: -74.00798212,
     columns: ['num', 'street', 'boro'],
     cells: [59, 'maiden', 'mn'],
     geocodeResp: GEOCODE_RESP,
@@ -84,8 +84,8 @@ const resetMocks = () => {
   GC_DATA_NO_BBL = {
     projected: '',
     row: 1,
-    lng: 40.70865853,
-    lat: -74.00798212,
+    lat: 40.70865853,
+    lng: -74.00798212,
     columns: ['num', 'street', 'boro'],
     cells: [59, 'maiden', 'mn'],
     geocodeResp: {
@@ -107,8 +107,8 @@ const resetMocks = () => {
   GC_DATA_INTERACTIVE = {
     projected: '',
     row: 3,
-    lng: 40.70865853,
-    lat: -74.00798212,
+    lat: 40.70865853,
+    lng: -74.00798212,
     columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, 'assemblyDistrict', 'bbl'],
     cells: [2, 'broadway', 'mn', undefined, undefined, undefined, undefined, undefined],
     geocodeResp: {

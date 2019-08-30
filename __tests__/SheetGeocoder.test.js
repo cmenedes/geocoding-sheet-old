@@ -359,15 +359,18 @@ describe('gotData', () => {
 
 describe('geocoded', () => {
   const updateFeature = SheetGeocoder.prototype.updateFeature
+  const projected = SheetGeocoder.prototype.projected
   beforeEach(() => {
     SheetGeocoder.prototype.updateFeature = jest.fn()
+    SheetGeocoder.prototype.projected = jest.fn()
   })
   afterEach(() => {
     SheetGeocoder.prototype.updateFeature = updateFeature
+    SheetGeocoder.prototype.projected = projected
   })
 
   test('geocoded - geocodeAll is true - geocode successful - not done', () => {
-    expect.assertions(4)
+    expect.assertions(12)
 
     google.returnData = {
       row: 2,
@@ -389,6 +392,13 @@ describe('geocoded', () => {
       fail('No batch should start when geocodeAll === false')
     })
 
+    geo.on('geocoded', event => {
+      expect(event.feature).toBe(feature)
+      expect(event.data.geocodeResp).toEqual(feature.get('_geocodeResp'))
+      expect(event.data.lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
+      expect(event.data.lng.toFixed(8)).toEqual(feature.get('LNG').toFixed(8))
+    })
+
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = true
     geo.source.addFeatures(features)
@@ -399,5 +409,12 @@ describe('geocoded', () => {
 
     expect(geo.updateFeature).toHaveBeenCalledTimes(1)
     expect(geo.updateFeature.mock.calls[0][0]).toEqual(google.returnData)
+    
+    expect(geo.projected).toHaveBeenCalledTimes(1)
+    //console.warn(feature.getProperties());
+    
+    expect(geo.projected.mock.calls[0][0].geocodeResp).toEqual(feature.get('_geocodeResp'))
+    expect(geo.projected.mock.calls[0][0].lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
+    expect(geo.projected.mock.calls[0][0].lng.toFixed(8)).toEqual(feature.get('LNG').toFixed(8))
   })
 })
