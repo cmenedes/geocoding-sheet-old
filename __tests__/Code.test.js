@@ -172,6 +172,7 @@ describe('geocoded', () => {
 
     const result = geocoded(mockGeocodeData)
 
+    expect(result.row).toEqual(row)
     expect(result.columns).toEqual(mockSheetData[0])
     expect(result.cells).toEqual(mockSheetData[mockGeocodeData.row])
 
@@ -212,13 +213,13 @@ describe('geocoded', () => {
   }
 
   test('geocoded - projected - not previously geocoded', () => {
-    expect.assertions(17)
+    expect.assertions(18)
 
     testGeocoded(MockData.NOT_GEOCODED_SHEET_PROJECT, MockData.GC_PROJECT_DATA_0)
   })
 
   test('geocoded - not projected - not previously geocoded', () => {
-    expect.assertions(13)
+    expect.assertions(14)
 
     testGeocoded(MockData.NOT_GEOCODED_SHEET_PROJECT, MockData.GC_DATA_0)
   })
@@ -235,7 +236,7 @@ describe('geocoded', () => {
   })
   
   test('geocoded - not projected - interactive', () => {
-    expect.assertions(15)
+    expect.assertions(16)
 
     testGeocoded(MockData.GEOCODED_SHEET, MockData.GC_DATA_INTERACTIVE)
 
