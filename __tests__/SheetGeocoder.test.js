@@ -479,7 +479,7 @@ describe('geocoded', () => {
     testGeocoded(geo, [feature])
   })
 
-  test('geocoded - geocodeAll is true - geocode successful - is done', () => {
+  test('geocoded - geocodeAll is false - geocode successful - is done', () => {
     expect.assertions(5)
 
     google.returnData = {
