@@ -546,3 +546,33 @@ test('projected', () => {
   expect(data.x).toBe(expected[0])
   expect(data.y).toBe(expected[1])
 })
+
+test('updateFeature', () => {
+  expect.assertions(4)
+
+  const feature = new Feature()
+  feature.setId(1)
+
+  const mockSource = {
+    getFeatureById: jest.fn().mockImplementation(id => {
+      expect(id).toBe(feature.getId())
+      return feature
+    })
+  }
+
+  const data = {
+    row: 2, 
+    columns: ['num', 'street', 'boro'],
+    cells: [59, 'maiden', 1]
+  }
+
+  const geo = new SheetGeocoder({})
+  
+  geo.source = mockSource
+
+  geo.updateFeature(data)
+
+  data.columns.forEach((col, i) => {
+    expect(feature.get(col)).toBe(data.cells[i])
+  })
+})

@@ -108,9 +108,7 @@ class SheetGeocoder extends EventHandling {
     const feature = this.source.getFeatureById(data.row - 1)
     const columns = data.columns
     for (let i = 0; i < columns.length; i++) {
-      const key = columns[i]
-      const val = data.cells[i]
-      if (key || val) feature.set(key, val)
+      feature.set(columns[i], data.cells[i])
     }
   }
 }
