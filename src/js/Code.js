@@ -107,6 +107,7 @@ function geocoded(data) {
     sheet.getRange(row, 1, 1, sheet.getLastColumn()).setBackground(ERROR_COLOR);
   }
   return {
+    row: row,
     columns: sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0], 
     cells: sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0]
   };

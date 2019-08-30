@@ -11,6 +11,39 @@ import SpreadsheetApp from './SpreadsheetApp.mock'
 import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
 
+const getGeocodeResp = (props, interactive) => {
+  return {
+    input: `${props.num || ''} ${props.street || ''}, ${interactive ? 1 : ''}`,
+    data: {
+      assemblyDistrict: props.assemblyDistrict,
+      bbl: props.bbl
+    }
+  }
+}
+
+const getGeocodedFeatures = interactive => {
+  const features = []
+  MockData.GEOCODED_FEATURES.forEach((f, i) => {
+    const props = f.getProperties()
+    const feature = new Feature(props)
+    const geom = f.getGeometry()
+    feature.setId(f.getId())
+    if (geom) {
+      feature.setGeometry(new Point(geom.getCoordinates()))
+    } else {
+      feature.set('boro', interactive ? 1 : '')
+      feature.set('_input', `${props.num || ''} ${props.street || ''}, `)
+      feature.set('_geocodeResp', getGeocodeResp(props, interactive))
+      feature.set('_row_index', i) 
+      feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
+      feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
+      feature.set('_interactive', true)
+    }
+    features.push(feature)
+  })
+  return features
+}
+
 const VALID_NYC_CONF = {
   nyc: true,
   url: 'mock-url',
@@ -175,32 +208,6 @@ describe('gotData', () => {
   const gsGeocoded = geocoded
   const sheetGeoGeocoded = SheetGeocoder.prototype.geocoded
   const setGeometry = CsvAddr.prototype.setGeometry
-
-  const getGeocodedFeatures = (interactive) => {
-    const features = []
-    MockData.GEOCODED_FEATURES.forEach((f, i) => {
-      const props = f.getProperties()
-      const feature = new Feature(props)
-      const geom = f.getGeometry()
-      feature.setId(f.getId())
-      if (geom) {
-        feature.setGeometry(new Point(geom.getCoordinates()))
-      } else {
-        feature.set('boro', interactive ? 1 : '')
-        feature.set('_input', `${props.num || ''} ${props.street || ''}, `)
-        feature.set('_geocodeResp', {
-          input: `${props.num || ''} ${props.street || ''}, ${interactive ? 1 : ''}`
-        })
-        feature.set('_row_index', i) 
-        feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
-        feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
-        feature.set('_interactive', true)
-      }
-      features.push(feature)
-    })
-    return features
-  }
-
   const testSetGeometry = (geo, sheet, times) => {
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(times)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
@@ -252,12 +259,7 @@ describe('gotData', () => {
 
     const sheet = MockData.NOT_GEOCODED_SHEET_PROJECT
 
-    const geo = new SheetGeocoder({
-      source: new Source({
-        /* will be cleared because geocodeAll === true */
-        features: MockData.NOT_GEOCODED_FEATURES 
-      })
-    })
+    const geo = new SheetGeocoder({source: new Source()})
 
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = true
@@ -344,5 +346,31 @@ describe('gotData', () => {
 describe('geocoded', () => {
   beforeEach(() => {
 
+  })
+  afterEach(() => {
+
+  })
+
+  test('geocoded - geocodeAll is true - geocode successful - not done', () => {
+    expect.assertions(1)
+
+    google.returnData = {
+      row: 2,
+      columns: MockData.GEOCODED_SHEET_PROJECT[0], 
+      cells: MockData.GEOCODED_SHEET_PROJECT[1]
+    }
+
+    const features = getGeocodedFeatures()
+    const feature = features[0]
+
+    const geo = new SheetGeocoder({source: new Source()})
+
+    geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = true
+    geo.source.addFeatures(features)
+
+    geo.geocoded({target: feature})
+
+    expect(true).toBe(true)
   })
 })
