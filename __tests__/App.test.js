@@ -597,3 +597,36 @@ test('zoom', () => {
   expect(fit.mock.calls[0][0]).toBe(app.sheetGeocoder.geocodedBounds)
   expect(fit.mock.calls[0][1]).toEqual({size: 'mock-size', duration: 500})
 })
+
+test('ambiguous', () => {
+  expect.assertions(6)
+
+  const feature = new Feature()
+  feature.setId(1)
+
+  const data = {geocodeResp: {input: '2 broadway, ', possible: [{}, {}]}}
+
+  const app = new App()
+
+  expect($('#review').children().length).toBe(1)
+
+  app.ambiguous({feature, data})
+
+  const opt = $('#review option[value="1"]')
+
+  expect(opt.length).toBe(1)
+  expect($('#review').children().length).toBe(2)
+  expect(opt.get(0)).toBe($('#review').children().last().get(0))
+  expect(opt.html()).toBe('(2) 2 broadway, ')
+  expect(opt.data('feature')).toBe(feature)
+
+  app.ambiguous({feature, data})
+
+  data.geocodeResp.possible = undefined
+
+  app.ambiguous({feature, data})
+
+  data.geocodeResp = undefined
+
+  app.ambiguous({feature, data})
+})
