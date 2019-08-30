@@ -11,7 +11,7 @@ const style = (feature, resolution) => {
   const zoom = nycOl.TILE_GRID.getZForResolution(resolution)
   const text = feature.getId() + 1 + ''
   const fontSize = text.length > 2 ? zoom * .8 : zoom * 1.2
-  const fontWeight = text.length > 2 ? 'bold' : zoom * ''
+  const fontWeight = text.length <= 2 ? 'bold' : ''
   return new Style({
     image: new Circle({
       radius: 10,
@@ -20,7 +20,7 @@ const style = (feature, resolution) => {
     }),
     text: new Text({
       text: text,
-      font: `${fontWeight} ${fontSize}px sans-serif`,
+      font: `${fontWeight} ${fontSize.toFixed(0)}px sans-serif`.trim(),
       fill: new Fill({color: '#000'})
     })
   })
