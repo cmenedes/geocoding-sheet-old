@@ -548,15 +548,14 @@ test('projected', () => {
 })
 
 test('updateFeature', () => {
-  expect.assertions(4)
+  expect.assertions(3)
 
   const feature = new Feature()
   feature.setId(1)
 
   const mockSource = {
     getFeatureById: jest.fn().mockImplementation(id => {
-      expect(id).toBe(feature.getId())
-      return feature
+      if (id === feature.getId()) return feature
     })
   }
 
@@ -575,4 +574,6 @@ test('updateFeature', () => {
   data.columns.forEach((col, i) => {
     expect(feature.get(col)).toBe(data.cells[i])
   })
+
+  feature.setId(111)
 })
