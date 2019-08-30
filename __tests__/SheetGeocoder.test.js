@@ -370,7 +370,7 @@ describe('geocoded', () => {
   })
 
   test('geocoded - geocodeAll is true - geocode successful - not done', () => {
-    expect.assertions(12)
+    expect.assertions(13)
 
     google.returnData = {
       row: 2,
@@ -401,9 +401,12 @@ describe('geocoded', () => {
 
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = true
+    geo.countDown = 10
     geo.source.addFeatures(features)
 
     geo.geocoded({target: feature})
+
+    expect(geo.countDown).toBe(9)
 
     expect(geo.geocodedBounds).toEqual(getBounds([feature]))
 
@@ -411,7 +414,6 @@ describe('geocoded', () => {
     expect(geo.updateFeature.mock.calls[0][0]).toEqual(google.returnData)
     
     expect(geo.projected).toHaveBeenCalledTimes(1)
-    //console.warn(feature.getProperties());
     
     expect(geo.projected.mock.calls[0][0].geocodeResp).toEqual(feature.get('_geocodeResp'))
     expect(geo.projected.mock.calls[0][0].lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
