@@ -568,3 +568,32 @@ test('correctSheet', () => {
   expect(app.sheetGeocoder.geocoded.mock.calls[0][0].type).toBe('change')
   expect(app.sheetGeocoder.geocoded.mock.calls[0][0].target).toBe(feature)
 })
+
+test('zoom', () => {
+  expect.assertions(3)
+
+  const fit = jest.fn()
+
+  const app = new App()
+
+  app.sheetGeocoder = {
+    geocodedBounds:'mock-bounds'
+  }
+
+  app.map = {
+    getView() {
+      return {
+        fit: fit
+      }
+    },
+    getSize() {
+      return 'mock-size'
+    }
+  }
+
+  app.zoom()
+
+  expect(fit).toHaveBeenCalledTimes(1)
+  expect(fit.mock.calls[0][0]).toBe(app.sheetGeocoder.geocodedBounds)
+  expect(fit.mock.calls[0][1]).toEqual({size: 'mock-size', duration: 500})
+})
