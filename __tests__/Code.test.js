@@ -264,6 +264,4 @@ test('setFields when gocodode does not provide a value', () => {
 
   expect(SpreadsheetApp.sheet.getRange.mock.calls[1]).toEqual([1, 8])
   expect(SpreadsheetApp.range.setValue.mock.calls[1]).toEqual([''])
-
-
 })

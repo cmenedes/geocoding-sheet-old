@@ -1,6 +1,7 @@
 import Code from '../src/js/Code'
 import Feature from 'ol/Feature'
 import proj4 from 'proj4'
+import Point from 'ol/geom/Point'
 
 let GEOCODE_RESP
 let NOT_GEOCODED_SHEET_PROJECT
@@ -140,8 +141,9 @@ sheets.forEach((sheet, s) => {
     feature.setId(i - 1)
     if (sheet === GEOCODED_SHEET_PROJECT) {
       GEOCODED_FEATURES.push(feature)
-      if (props.lng) {
-        feature.setGeometry(proj4('EPSG:4326', 'EPSG:3857', [props.lng, props.lat]))
+      if (props.LNG) {
+        const point = new Point(proj4('EPSG:4326', 'EPSG:3857', [props.LNG, props.LAT]))
+        feature.setGeometry(point)
       }
     } else {
       NOT_GEOCODED_FEATURES.push(feature)

@@ -7,17 +7,30 @@ import Feature from 'ol/Feature'
 import google from './goog.mock'
 import MockData from './Data.mock'
 import SpreadsheetApp from './SpreadsheetApp.mock'
+import Point from 'ol/geom/Point'
+import {extend} from 'ol/extent'
 
 import CensusGeocoder from 'nyc-lib/nyc/CensusGeocoder'
 import Geoclient from 'nyc-lib/nyc/Geoclient'
 
-const getGeocodeResp = (props, interactive) => {
+const getBounds = features => {
+  let bounds
+  features.forEach(f => {
+    const g = f.getGeometry()
+    if (g) {
+      const e = g.getExtent()
+      bounds = bounds ? extend(bounds, e) : e
+    }
+  })
+  return bounds
+}
+const getGeocodeResp = (success, props, interactive) => {
   return {
     input: `${props.num || ''} ${props.street || ''}, ${interactive ? 1 : ''}`,
-    data: {
+    data: success ? {
       assemblyDistrict: props.assemblyDistrict,
       bbl: props.bbl
-    }
+    } : undefined
   }
 }
 
@@ -28,12 +41,13 @@ const getGeocodedFeatures = interactive => {
     const feature = new Feature(props)
     const geom = f.getGeometry()
     feature.setId(f.getId())
+    feature.set('_input', `${props.num || ''} ${props.street || ''}, `)
     if (geom) {
+      feature.set('_geocodeResp', getGeocodeResp(true, props, interactive))
       feature.setGeometry(new Point(geom.getCoordinates()))
     } else {
-      feature.set('boro', interactive ? 1 : '')
-      feature.set('_input', `${props.num || ''} ${props.street || ''}, `)
-      feature.set('_geocodeResp', getGeocodeResp(props, interactive))
+    feature.set('_geocodeResp', getGeocodeResp(false, props, interactive))
+    feature.set('boro', interactive ? 1 : '')
       feature.set('_row_index', i) 
       feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
       feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
@@ -344,15 +358,16 @@ describe('gotData', () => {
 })
 
 describe('geocoded', () => {
+  const updateFeature = SheetGeocoder.prototype.updateFeature
   beforeEach(() => {
-
+    SheetGeocoder.prototype.updateFeature = jest.fn()
   })
   afterEach(() => {
-
+    SheetGeocoder.prototype.updateFeature = updateFeature
   })
 
   test('geocoded - geocodeAll is true - geocode successful - not done', () => {
-    expect.assertions(1)
+    expect.assertions(4)
 
     google.returnData = {
       row: 2,
@@ -365,12 +380,24 @@ describe('geocoded', () => {
 
     const geo = new SheetGeocoder({source: new Source()})
 
+    expect(geo.geocodedBounds).toBeNull()
+
+    geo.on('batch-start', () => {
+      fail('No batch should start when geocodeAll === false')
+    })
+    geo.on('batch-end', () => {
+      fail('No batch should start when geocodeAll === false')
+    })
+
     geo.conf(VALID_NYC_CONF)
     geo.geocodeAll = true
     geo.source.addFeatures(features)
 
     geo.geocoded({target: feature})
 
-    expect(true).toBe(true)
+    expect(geo.geocodedBounds).toEqual(getBounds([feature]))
+
+    expect(geo.updateFeature).toHaveBeenCalledTimes(1)
+    expect(geo.updateFeature.mock.calls[0][0]).toEqual(google.returnData)
   })
 })

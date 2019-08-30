@@ -1,6 +1,6 @@
 import EventHandling from 'nyc-lib/nyc/EventHandling';
 import proj4 from 'proj4'
-import extend from 'ol/extent'
+import {extend} from 'ol/extent'
 import Format from './Format'
 import Feature from 'ol/Feature'
 
@@ -68,7 +68,7 @@ class SheetGeocoder extends EventHandling {
     const geom = feature.getGeometry()
     const id = feature.getId()
     const data = {
-      projected: this.projection && this.projection.length,
+      projected: this.projection,
       row: feature.get('_row_index'),
       columns: feature.get('_columns'),
       cells: feature.get('_row_data'),
@@ -79,7 +79,7 @@ class SheetGeocoder extends EventHandling {
     }
     if (this.geocodeAll) this.countDown--
     if (geom) {
-      const ext = geom.getExtent()
+    const ext = geom.getExtent()
       const coords = geom.getCoordinates()
       const ll = proj4('EPSG:3857', 'EPSG:4326', coords)
       data.lat = ll[0]
