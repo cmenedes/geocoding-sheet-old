@@ -411,6 +411,9 @@ describe('geocoded', () => {
     geo.on('batch-end', () => {
       fail('batch not done')
     })
+    geo.on('ambiguous', () => {
+      fail('ambiguous should fire')
+    })
 
     geo.on('geocoded', event => {
       testGeocodededEvent(feature, event)
@@ -452,6 +455,9 @@ describe('geocoded', () => {
     geo.on('batch-end', () => {
       expect(1).toBe(1)
     })
+    geo.on('ambiguous', () => {
+      fail('ambiguous should fire')
+    })
 
     geo.on('geocoded', event => {
       testGeocodededEvent(feature, event)
@@ -470,6 +476,51 @@ describe('geocoded', () => {
     expect(geo.countDown).toBe(0)
 
     testGeocoded(geo, [feature])
+  })
+
+  test('geocoded - geocodeAll is true - geocode successful - is done', () => {
+    expect.assertions(5)
+
+    google.returnData = {
+      row: 2,
+      columns: MockData.GEOCODED_SHEET_PROJECT[0], 
+      cells: MockData.GEOCODED_SHEET_PROJECT[1]
+    }
+
+    const features = getGeocodedFeatures()
+    const feature = features[2]
+
+    const geo = new SheetGeocoder({source: new Source()})
+
+    expect(geo.geocodedBounds).toBeNull()
+
+    geo.on('batch-start', () => {
+      fail('batch should not started')
+    })
+    geo.on('batch-end', () => {
+      fail('batch should not started')
+    })
+    geo.on('geocoded', event => {
+      fail('geocoded should not fire')
+    })
+
+    geo.on('ambiguous', event => {
+      expect(event.feature).toBe(feature)
+      expect(event.data.geocodeResp).toEqual(feature.get('_geocodeResp'))
+    })
+
+    geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = false
+    geo.countDown = 0
+    geo.source.addFeatures(features)
+    geo.geocodedBounds = getBounds([features[1]])
+
+    geo.geocoded({target: feature})
+
+    expect(geo.geocodedBounds).toEqual(getBounds([features[1]]))
+
+    expect(geo.countDown).toBe(0)
+
   })
 
 })
