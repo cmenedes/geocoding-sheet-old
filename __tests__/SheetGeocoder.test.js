@@ -23,6 +23,7 @@ const VALID_NYC_CONF = {
 beforeEach(() => {
   // CensusGeocoder.mockClear()
   // Geoclient.mockClear()
+  MockData.resetMocks()
 })
 
 describe('constructor', () => {
@@ -338,4 +339,10 @@ describe('gotData', () => {
     testFeatureChangeRunsGeocoded(geo, 2)
   })
 
+})
+
+describe('geocoded', () => {
+  beforeEach(() => {
+
+  })
 })

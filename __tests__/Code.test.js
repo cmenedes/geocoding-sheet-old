@@ -8,6 +8,7 @@ beforeEach(() => {
   HtmlService.resetMocks()
   SpreadsheetApp.resetMocks()
   google.resetMocks()
+  MockData.resetMocks()
 })
 
 test('functions loaded', () => {
