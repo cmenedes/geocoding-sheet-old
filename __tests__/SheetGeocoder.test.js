@@ -358,6 +358,26 @@ describe('gotData', () => {
 })
 
 describe('geocoded', () => {
+
+  const testGeocodededEvent = (feature, event) => {
+    expect(event.feature).toBe(feature)
+    expect(event.data.geocodeResp).toEqual(feature.get('_geocodeResp'))
+    expect(event.data.lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
+    expect(event.data.lng.toFixed(8)).toEqual(feature.get('LNG').toFixed(8))
+  }
+
+  const testGeocoded = (geo, features) => {
+    expect(geo.updateFeature).toHaveBeenCalledTimes(1)
+    expect(geo.updateFeature.mock.calls[0][0]).toEqual(google.returnData)
+    
+    expect(geo.projected).toHaveBeenCalledTimes(features.length)
+    
+    features.forEach((f, i) => {
+      expect(geo.projected.mock.calls[i][0].geocodeResp).toEqual(f.get('_geocodeResp'))
+      expect(geo.projected.mock.calls[i][0].lat.toFixed(8)).toEqual(f.get('LAT').toFixed(8))
+      expect(geo.projected.mock.calls[i][0].lng.toFixed(8)).toEqual(f.get('LNG').toFixed(8))
+    })
+  }
   const updateFeature = SheetGeocoder.prototype.updateFeature
   const projected = SheetGeocoder.prototype.projected
   beforeEach(() => {
@@ -386,17 +406,14 @@ describe('geocoded', () => {
     expect(geo.geocodedBounds).toBeNull()
 
     geo.on('batch-start', () => {
-      fail('No batch should start when geocodeAll === false')
+      fail('batch already started')
     })
     geo.on('batch-end', () => {
-      fail('No batch should start when geocodeAll === false')
+      fail('batch not done')
     })
 
     geo.on('geocoded', event => {
-      expect(event.feature).toBe(feature)
-      expect(event.data.geocodeResp).toEqual(feature.get('_geocodeResp'))
-      expect(event.data.lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
-      expect(event.data.lng.toFixed(8)).toEqual(feature.get('LNG').toFixed(8))
+      testGeocodededEvent(feature, event)
     })
 
     geo.conf(VALID_NYC_CONF)
@@ -410,13 +427,49 @@ describe('geocoded', () => {
 
     expect(geo.geocodedBounds).toEqual(getBounds([feature]))
 
-    expect(geo.updateFeature).toHaveBeenCalledTimes(1)
-    expect(geo.updateFeature.mock.calls[0][0]).toEqual(google.returnData)
-    
-    expect(geo.projected).toHaveBeenCalledTimes(1)
-    
-    expect(geo.projected.mock.calls[0][0].geocodeResp).toEqual(feature.get('_geocodeResp'))
-    expect(geo.projected.mock.calls[0][0].lat.toFixed(8)).toEqual(feature.get('LAT').toFixed(8))
-    expect(geo.projected.mock.calls[0][0].lng.toFixed(8)).toEqual(feature.get('LNG').toFixed(8))
+    testGeocoded(geo, [feature])
   })
+
+  test('geocoded - geocodeAll is true - geocode successful - is done', () => {
+    expect.assertions(14)
+
+    google.returnData = {
+      row: 2,
+      columns: MockData.GEOCODED_SHEET_PROJECT[0], 
+      cells: MockData.GEOCODED_SHEET_PROJECT[1]
+    }
+
+    const features = getGeocodedFeatures()
+    const feature = features[0]
+
+    const geo = new SheetGeocoder({source: new Source()})
+
+    expect(geo.geocodedBounds).toBeNull()
+
+    geo.on('batch-start', () => {
+      fail('batch already started')
+    })
+    geo.on('batch-end', () => {
+      expect(1).toBe(1)
+    })
+
+    geo.on('geocoded', event => {
+      testGeocodededEvent(feature, event)
+    })
+
+    geo.conf(VALID_NYC_CONF)
+    geo.geocodeAll = true
+    geo.countDown = 1
+    geo.source.addFeatures(features)
+    geo.geocodedBounds = getBounds([features[1]])
+
+    geo.geocoded({target: feature})
+
+    expect(geo.geocodedBounds).toEqual(getBounds([features[0], features[1]]))
+
+    expect(geo.countDown).toBe(0)
+
+    testGeocoded(geo, [feature])
+  })
+
 })
