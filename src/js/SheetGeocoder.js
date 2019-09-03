@@ -66,6 +66,9 @@ class SheetGeocoder extends EventHandling {
     })
   }
   geocoded(event) {
+
+    console.warn('geocoded fid',event.target.getId());
+    
     const feature = event.target;
     const geom = feature.getGeometry()
     const id = feature.getId()
