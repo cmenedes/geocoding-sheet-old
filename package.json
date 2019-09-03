@@ -1,15 +1,14 @@
 {
   "name": "geocoding-sheet",
-  "version": "14.1.22",
+  "version": "14.1.23",
   "description": "",
   "main": "",
   "scripts": {
     "predeploy": "yarn build && ./tag.sh",
     "deploy": "./clasp-deploy.sh",
-    "push": "./clasp-push.sh",
     "test": "jest",
     "build": "webpack",
-    "prebuild": "./gcp-clean.sh && yarn roll-css",
+    "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
     "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css",
     "postbuild": "node pkg-addon",
     "postinstall": "chmod +x *.sh"
@@ -64,6 +63,8 @@
     "transformIgnorePatterns": []
   },
   "config": {
-    "ghooks": {}
+    "ghooks": {
+      "pre-commit": "yarn test"
+    }
   }
 }
