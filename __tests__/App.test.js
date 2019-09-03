@@ -285,6 +285,7 @@ describe('update', () => {
 })
 
 describe('setup', () => {
+  const _setInterval = global.setInterval
   const setup = App.prototype.setup
   const clear = SheetGeocoder.prototype.clear
   const conf = SheetGeocoder.prototype.conf
@@ -292,6 +293,9 @@ describe('setup', () => {
   const _getData = SheetGeocoder.prototype.getData
 
   beforeEach(() => {
+    global.setInterval = jest.fn().mockImplementation((fn, i) => {
+      fn()
+    })
     Tabs.prototype.open = jest.fn()
     App.prototype.setup = jest.fn()
     SheetGeocoder.prototype.getData = jest.fn()
@@ -299,6 +303,7 @@ describe('setup', () => {
     SheetGeocoder.prototype.conf = jest.fn()
   })
   afterEach(() => {
+    global.setInterval = _setInterval
     App.prototype.setup = setup
     SheetGeocoder.prototype.getData = _getData
     SheetGeocoder.prototype.clear = clear
@@ -307,7 +312,7 @@ describe('setup', () => {
   })
 
   test('setup is valid and is nyc', () => {
-    expect.assertions(12)
+    expect.assertions(13)
 
     const app = new App()
     
@@ -329,11 +334,12 @@ describe('setup', () => {
     expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
   
     expect(app.tabs.open).toHaveBeenCalledTimes(2)
+    expect(setInterval).toHaveBeenCalledTimes(0)
     expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(0)
   })
 
   test('setup is valid and is not nyc - on interval', () => {
-    expect.assertions(14)
+    expect.assertions(16)
 
     Object.keys(confCensus).forEach(key => {
       Conf.set(key, confCensus[key])
@@ -363,6 +369,9 @@ describe('setup', () => {
     expect(app.tabs.open).toHaveBeenCalledTimes(3)
     expect(app.tabs.open.mock.calls[2][0]).toBe('#tab-map')
   
+    expect(setInterval).toHaveBeenCalledTimes(1)
+    expect(setInterval.mock.calls[0][1]).toBe(5000)
+
     expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(1)
     expect(app.sheetGeocoder.getData.mock.calls[0][0]).toBe(false)
   })

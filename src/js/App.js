@@ -204,7 +204,11 @@ class App {
       this.geoclient.url = this.geoclientUrl()
       if (this.onInterval.val().length) {
         this.tabs.open('#tab-map')
-        this.sheetGeocoder.getData(false)
+        this.interval = setInterval(() => {
+          this.sheetGeocoder.getData(false)
+        }, 5000)
+      } else {
+        clearInterval(this.interval)
       }
     }
   }

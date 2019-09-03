@@ -1,11 +1,13 @@
 {
   "name": "geocoding-sheet",
-  "version": "14.1.27",
+  "version": "14.1.29",
   "description": "",
   "main": "",
   "scripts": {
-    "predeploy": "yarn build && ./tag.sh",
-    "deploy": "./clasp-deploy.sh",
+    "preclasp-push": "yarn build",
+    "preclasp-deploy": "yarn build && ./tag.sh",
+    "clasp-push": "./clasp-push.sh",
+    "clasp-deploy": "./clasp-deploy.sh",
     "test": "jest",
     "build": "webpack",
     "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
