@@ -59,7 +59,7 @@ const resetMocks = () => {
   }
   GC_PROJECT_DATA_1 = {
     projected: 'EPSG:2263',
-    row: 1,
+    row: 2,
     lat: 40.70865853,
     lng: -74.00798212,
     x: 982037,
@@ -72,7 +72,7 @@ const resetMocks = () => {
   }
   GC_DATA_0 = {
     projected: '',
-    row: 1,
+    row: 2,
     lat: 40.70865853,
     lng: -74.00798212,
     columns: ['num', 'street', 'boro'],
@@ -83,7 +83,7 @@ const resetMocks = () => {
   }
   GC_DATA_NO_BBL = {
     projected: '',
-    row: 1,
+    row: 2,
     lat: 40.70865853,
     lng: -74.00798212,
     columns: ['num', 'street', 'boro'],
@@ -98,7 +98,7 @@ const resetMocks = () => {
   }
   GC_DATA_AMBIGUOUS = {
     projected: '',
-    row: 3,
+    row: 4,
     columns: ['num', 'street', 'boro'],
     cells: [2, 'broadway', ''],
     requestedFields: ['assemblyDistrict', 'bbl'],
@@ -106,7 +106,7 @@ const resetMocks = () => {
   }
   GC_DATA_INTERACTIVE = {
     projected: '',
-    row: 3,
+    row: 4,
     lat: 40.70865853,
     lng: -74.00798212,
     columns: ['num', 'street', 'boro', LOCATION_NAME_COL, LONGITUDE_COL, LATITUDE_COL, 'assemblyDistrict', 'bbl'],
@@ -138,7 +138,7 @@ sheets.forEach((sheet, s) => {
       props[header[j]] = row[j]
     }
     const feature = new Feature(props)
-    feature.setId(i - 1)
+    feature.setId(i + 1)
     if (sheet === GEOCODED_SHEET_PROJECT) {
       GEOCODED_FEATURES.push(feature)
       if (props.LNG) {

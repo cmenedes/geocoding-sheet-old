@@ -168,13 +168,13 @@ describe('geocoded', () => {
   const testGeocoded = (mockSheetData, mockGeocodeData) => {
     SpreadsheetApp.sheet.data = mockSheetData
 
-    const row = mockGeocodeData.row + 1
+    const row = mockGeocodeData.row
 
     const result = geocoded(mockGeocodeData)
 
     expect(result.row).toEqual(row)
     expect(result.columns).toEqual(mockSheetData[0])
-    expect(result.cells).toEqual(mockSheetData[mockGeocodeData.row])
+    expect(result.cells).toEqual(mockSheetData[mockGeocodeData.row - 1])
 
     expect(SpreadsheetApp.getActiveSheet).toHaveBeenCalledTimes(1)
 

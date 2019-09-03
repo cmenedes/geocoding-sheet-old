@@ -108,7 +108,7 @@ describe('conf', () => {
 
     expect(geo.format instanceof CsvAddr).toBe(true)
     expect(geo.format.geocoder instanceof Geoclient).toBe(true)
-    expect(geo.format.geocoder.url).toBe('mock-url/search.json?app_id=mock-id&app_key=mock-key&input=&input=')
+    expect(geo.format.geocoder.url).toBe('mock-url/search.json?app_id=mock-id&app_key=mock-key&input=')
   })
 
   test('conf not nyc', () => {
@@ -226,7 +226,7 @@ describe('gotData', () => {
   const testSetGeometry = (geo, sheet, times) => {
     expect(geo.format.setGeometry).toHaveBeenCalledTimes(times)
     geo.format.setGeometry.mock.calls.forEach((call, i) => {
-      const feature = geo.source.getFeatureById(i)
+      const feature = geo.source.getFeatureById(i + 2)
       expect(call[0]).toBe(feature)
       expect(call[1]).toEqual({
         num: feature.get('num'),
@@ -241,7 +241,7 @@ describe('gotData', () => {
         bbl: feature.get('bbl'),
         _columns: sheet[0],
         _cells: sheet[i + 1],
-        _row_num: i + 1
+        _row_num: i + 2
       })
     })
   }
@@ -251,7 +251,7 @@ describe('gotData', () => {
     geo.geocoded.mock.calls.forEach((call, i) => {
       expect(call[0]).toEqual({
         type: 'change',
-        target: geo.source.getFeatureById(i)
+        target: geo.source.getFeatureById(i + 2)
       })  
     })  
   }
@@ -551,7 +551,7 @@ test('updateFeature', () => {
   expect.assertions(3)
 
   const feature = new Feature()
-  feature.setId(1)
+  feature.setId(2)
 
   const mockSource = {
     getFeatureById: jest.fn().mockImplementation(id => {
@@ -576,4 +576,6 @@ test('updateFeature', () => {
   })
 
   feature.setId(111)
+
+  geo.updateFeature(data)
 })
