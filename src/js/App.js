@@ -119,10 +119,10 @@ class App {
             .html(optHtml)
             .attr('title', `Row ${row}`).val(id)
         )
-        $($('#review option').get(0)).html(`Review ${$('#review option').length - 1} Failures`)
       } else {
         opt.html(optHtml)
       }
+      $($('#review option').get(0)).html(`Review ${$('#review option').length - 1} Failures`)
     }
   }
   syncFeature(event) {
