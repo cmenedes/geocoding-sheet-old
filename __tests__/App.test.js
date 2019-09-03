@@ -289,18 +289,18 @@ describe('setup', () => {
   const clear = SheetGeocoder.prototype.clear
   const conf = SheetGeocoder.prototype.conf
   const open = Tabs.prototype.open
-  const _getData = App.prototype.getData
+  const _getData = SheetGeocoder.prototype.getData
 
   beforeEach(() => {
     Tabs.prototype.open = jest.fn()
     App.prototype.setup = jest.fn()
-    App.prototype.getData = jest.fn()
+    SheetGeocoder.prototype.getData = jest.fn()
     SheetGeocoder.prototype.clear = jest.fn()
     SheetGeocoder.prototype.conf = jest.fn()
   })
   afterEach(() => {
     App.prototype.setup = setup
-    App.prototype.getData = _getData
+    SheetGeocoder.prototype.getData = _getData
     SheetGeocoder.prototype.clear = clear
     SheetGeocoder.prototype.conf = conf
     Tabs.prototype.open = open
@@ -329,7 +329,7 @@ describe('setup', () => {
     expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
   
     expect(app.tabs.open).toHaveBeenCalledTimes(2)
-    expect(app.getData).toHaveBeenCalledTimes(0)
+    expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(0)
   })
 
   test('setup is valid and is not nyc - on interval', () => {
@@ -363,8 +363,8 @@ describe('setup', () => {
     expect(app.tabs.open).toHaveBeenCalledTimes(3)
     expect(app.tabs.open.mock.calls[2][0]).toBe('#tab-map')
   
-    expect(app.getData).toHaveBeenCalledTimes(1)
-    expect(app.getData.mock.calls[0][0]).toBe(false)
+    expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(1)
+    expect(app.sheetGeocoder.getData.mock.calls[0][0]).toBe(false)
   })
 
   test('setup not valid', () => {
