@@ -29,7 +29,10 @@ class App {
     this.map.addLayer(layer)
     this.popup = new Popup({map: this.map})
     this.sheetGeocoder = new SheetGeocoder({source: layer.getSource()})
-    this.locationMgr = new LocationMgr({map: this.map, geocoder: this.census})
+    this.locationMgrCensus = new LocationMgr({map: this.map, geocoder: this.census})
+    this.locationMgrGeoclient = new LocationMgr({map: this.map, geocoder: this.geoclient})
+    this.searchCtrls = $('.srch-ctl')
+    $($('.zoom').get(0)).hide()
     this.geoApi = new Choice({
       target: '#geo-api',
       radio: true,
@@ -90,11 +93,15 @@ class App {
     $('#tab-conf input').keyup($.proxy(this.update, this))
     $(window).resize($.proxy(this.setMapSize, this))
     this.tabs.on('change', this.setMapSize, this)
-    this.locationMgr.on('geocoded', this.showPopup, this)
+    this.locationMgrCensus.on('geocoded', this.showPopup, this)
+    this.locationMgrGeoclient.on('geocoded', this.showPopup, this)
     this.sheetGeocoder.on('batch-end', this.zoom, this)
     this.sheetGeocoder.on('geocoded', this.syncFeature, this)
     this.sheetGeocoder.on('ambiguous', this.ambiguous, this)
     this.update()
+    if (Conf.valid()) {
+      this.tabs.open('#tab-map')
+    }
   }
   ambiguous(event) {
     const feature = event.feature
@@ -110,7 +117,8 @@ class App {
           $('<option></option>').data('feature', feature)
             .html(optHtml)
             .attr('title', `Row ${row}`).val(id)
-        );
+        )
+        $($('#review option').get(0)).html(`Review ${$('#review option').length - 1} Failures`)
       } else {
         opt.html(optHtml)
       }
@@ -128,9 +136,10 @@ class App {
     const id = $('#review').val()
     const feature = $(`#review option[value="${id}"]`).data('feature')
     if (feature) {
-      const input = feature.get('_geocodeResp').input
-      $('.srch-ctl input').val(input).data('last-search', input)
-      $('.srch-ctl .btn-srch').trigger('click')
+      const input = feature.get('_input')
+      const locationMgr = Conf.get('nyc') ? this.locationMgrGeoclient : this.locationMgrCensus
+      locationMgr.search.input.val(input).data('last-search', input)
+      locationMgr.search.trigger('search', input)
     }
   }
   download() {
@@ -138,16 +147,16 @@ class App {
     const features = layer.getSource().getFeatures()
     features.forEach(f => {
       const props = f.getProperties()
-      props.SHEET_ROW_NUM = props._row_index + 1
+      props.SHEET_ROW_NUM = props._row_num + 1
       delete props.X
       delete props.Y
       delete props.LNG
       delete props.LAT
       delete props._input
       delete props._geocodeResp
-      delete props._row_index
+      delete props._row_num
       delete props._columns
-      delete props._row_data
+      delete props._cells
       delete props._source
       const feature = new Feature(props)
       feature.setGeometry(feature.getGeometry())
@@ -159,7 +168,7 @@ class App {
   correctSheet(feature, data) {
     const geocoder = this.sheetGeocoder
     feature.set('_interactive', true)
-    feature.once('change', geocoder.geocoded, geocoder)
+    feature.once('change', $.proxy(geocoder.geocoded, geocoder))
     geocoder.format.setGeocode(feature, data)
   }
   setMapSize() {
@@ -185,11 +194,12 @@ class App {
     this.base.setVisible(nyc)
     this.label.setVisible(nyc)
     this.osm.setVisible(!nyc)
-    if (Conf.valid()) {
+    $(this.searchCtrls.get(0))[nyc ? 'hide' : 'show']()
+    $(this.searchCtrls.get(1))[nyc ? 'show' : 'hide']()
+  if (Conf.valid()) {
       this.sheetGeocoder.clear()
       this.sheetGeocoder.projection = nyc ? 'EPSG:2263' : ''
       this.sheetGeocoder.conf(Conf.get())
-      this.locationMgr.locator.geocoder = nyc ? this.geoclient : this.census
       this.geoclient.url = this.geoclientUrl()
     }
   }
@@ -201,14 +211,15 @@ class App {
     const id = $('#review').val()
     const feature = $(`#review option[value="${id}"]`).data('feature')
     if (feature) {
+      const locationMgr = Conf.get('nyc') ? this.locationMgrGeoclient : this.locationMgrCensus
       const failedAddr = feature.get('_geocodeResp').input
-      const lastSearch = $('.srch-ctl input').data('last-search')
-      if (lastSearch === failedAddr) {
+      const lastSearch = locationMgr.search.input.data('last-search')
+      if (lastSearch.trim() === failedAddr.trim()) {
         const btn = $('<button class="update btn rad-all"></button>')
           .click(() => {
             me.correctSheet(feature, data)
             me.popup.hide()
-          }).html(`Update row ${id * 1 + 1}`)
+          }).html(`Update row ${id * 1}`)
         me.popup.show({
           coordinate: data.coordinate,
           html: $(`<div><h3>${data.name}</h3><div>`).append(btn)

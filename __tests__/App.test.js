@@ -67,7 +67,7 @@ describe('constructor', () => {
   })
 
   test('constructor', () => {
-    expect.assertions(1609)
+    expect.assertions(1610)
 
     const app = new App()
 
@@ -89,10 +89,12 @@ describe('constructor', () => {
     expect(app.sheetGeocoder instanceof SheetGeocoder).toBe(true)
     expect(app.sheetGeocoder.source).toBe(layer.getSource())
     
-    expect(app.locationMgr instanceof LocationMgr).toBe(true)
-    expect(app.locationMgr.locator.geocoder).toBe(app.census)
-    expect(app.locationMgr.mapLocator.map).toBe(app.map)
-    
+    expect(app.locationMgrCensus instanceof LocationMgr).toBe(true)
+    expect(app.locationMgrCensus.mapLocator.map).toBe(app.map)
+
+    expect(app.locationMgrGeoclient instanceof LocationMgr).toBe(true)
+    expect(app.locationMgrGeoclient.mapLocator.map).toBe(app.map)
+
     expect(app.geoApi instanceof Choice).toBe(true)
     expect(app.geoApi.val().length).toBe(1)
     expect(app.geoApi.val()[0].name).toBe('geo-api')
@@ -169,7 +171,7 @@ describe('hookup', () => {
   })
 
   test('hookup (called from constructor)', () => {
-    expect.assertions(16)
+    expect.assertions(18)
 
     const app = new App()
 
@@ -210,15 +212,15 @@ describe('hookup', () => {
     expect(app.update).toHaveBeenCalledTimes(4)
   
     $(window).trigger('resize')
-    expect(app.setMapSize).toHaveBeenCalledTimes(1)
+    expect(app.setMapSize).toHaveBeenCalledTimes(2)
   
-    // why no call setMapSize
-    // $(app.tabs).trigger('change')
-    // expect(app.setMapSize).toHaveBeenCalledTimes(2)
-  
-    app.locationMgr.trigger('geocoded', 'mock-location')
+    app.locationMgrGeoclient.trigger('geocoded', 'mock-location-0')
     expect(app.showPopup).toHaveBeenCalledTimes(1)
-    expect(app.showPopup.mock.calls[0][0]).toBe('mock-location')
+    expect(app.showPopup.mock.calls[0][0]).toBe('mock-location-0')
+
+    app.locationMgrCensus.trigger('geocoded', 'mock-location-1')
+    expect(app.showPopup).toHaveBeenCalledTimes(2)
+    expect(app.showPopup.mock.calls[1][0]).toBe('mock-location-1')
   })
 })
 
@@ -228,7 +230,7 @@ describe('setMapSize', () => {
   
     const app = new App()
   
-    expect(app.map.getSize()).toEqual([NaN, NaN])
+    expect(app.map.getSize()).toEqual([0, 0])
   
     $('#map').width(400)
     $('#map').height(600)
@@ -296,7 +298,7 @@ describe('setup', () => {
   })
 
   test('setup is valid and is nyc', () => {
-    expect.assertions(9)
+    expect.assertions(10)
 
     const app = new App()
     
@@ -309,15 +311,17 @@ describe('setup', () => {
     expect(app.label.getVisible()).toBe(true)
     expect(app.osm.getVisible()).toBe(false)
 
+    expect($(app.searchCtrls.get(0)).css('display')).toBe('none')
+    expect($(app.searchCtrls.get(1)).css('display')).toBe('block')
+
     expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(2)
     expect(app.sheetGeocoder.projection).toBe('EPSG:2263')
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
-    expect(app.locationMgr.locator.geocoder).toBe(app.geoclient)
     expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
   })
 
   test('setup is valid and is not nyc', () => {
-    expect.assertions(9)
+    expect.assertions(10)
 
     Object.keys(confCensus).forEach(key => {
       Conf.set(key, confCensus[key])
@@ -334,15 +338,17 @@ describe('setup', () => {
     expect(app.label.getVisible()).toBe(false)
     expect(app.osm.getVisible()).toBe(true)
 
+    expect($(app.searchCtrls.get(0)).css('display')).toBe('block')
+    expect($(app.searchCtrls.get(1)).css('display')).toBe('none')
+
     expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(2)
     expect(app.sheetGeocoder.projection).toBe('')
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
-    expect(app.locationMgr.locator.geocoder).toBe(app.census)
     expect(app.geoclient.url).toBe('/search.json?app_id=&app_key=&input=')
   })
 
   test('setup not valid', () => {
-    expect.assertions(9)
+    expect.assertions(10)
 
     Conf.set('template', '')
     Conf.set('url', 'a-url')
@@ -358,11 +364,13 @@ describe('setup', () => {
     expect(app.label.getVisible()).toBe(true)
     expect(app.osm.getVisible()).toBe(false)
 
+    expect($(app.searchCtrls.get(0)).css('display')).toBe('none')
+    expect($(app.searchCtrls.get(1)).css('display')).toBe('block')
+
     expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
     expect(app.sheetGeocoder.projection).toBeUndefined()
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(0)
     
-    expect(app.locationMgr.locator.geocoder).toBe(app.census)
     expect(app.geoclient.url).toBe('a-url/search.json?app_id=mock-id&app_key=mock-key&input=&input=')
   })
 })
@@ -371,11 +379,11 @@ describe('showPopup', () => {
   const correctSheet = App.prototype.correctSheet
   const show = Popup.prototype.show
   const hide = Popup.prototype.hide
-  const feature = new Feature({_geocodeResp: {input: 'failed'}})
+  const feature = new Feature({_input: 'failed', _geocodeResp: {input: 'failed'}})
   let opt
   beforeEach(() => {
-    opt = $('<option value="1"></option>').data('feature', feature)
-    feature.setId(1)
+    opt = $('<option value="2"></option>').data('feature', feature)
+    feature.setId(2)
     App.prototype.correctSheet = jest.fn()
     Popup.prototype.show = jest.fn()
     Popup.prototype.hide = jest.fn()
@@ -387,14 +395,14 @@ describe('showPopup', () => {
     opt.remove()
   })
 
-  test('showPopup has feature with failed geocode', () => {
+  test('showPopup - has feature with failed geocode - is nyc', () => {
     expect.assertions(7)
 
     const data = {name: 'fred', coordinate: 'mock-coord'}
     
     const app = new App()
 
-    $('#review').append(opt).val(1)
+    $('#review').append(opt).val(2)
     $('.srch-ctl input').data('last-search', 'failed')
    
     app.showPopup(data)
@@ -412,15 +420,17 @@ describe('showPopup', () => {
     expect(app.popup.hide).toHaveBeenCalledTimes(1)
   })
 
-  test('showPopup has feature no failed geocode', () => {
+  test('showPopup - has feature no failed geocode - not nyc', () => {
     expect.assertions(3)
+
+    Conf.set('nyc', false)
 
     const data = {name: 'fred', coordinate: 'mock-coord'}
     
     const app = new App()
 
     feature.set('_geocodeResp', {input: 'success'})
-    $('#review').append(opt).val(1)    
+    $('#review').append(opt).val(2)
     $('.srch-ctl input').data('last-search', 'something else')
    
     app.showPopup(data)
@@ -474,55 +484,80 @@ describe('requestedFields', () => {
 })
 
 describe('review', () => {
-  const feature = new Feature({_geocodeResp: {input: 'failed'}})
-  let opt
+  const feature = new Feature({_input: 'failed'})
+  let opt 
   beforeEach(() => {
-    opt = $('<option value="1"></option>').data('feature', feature)
+    Conf.set('nyc', false)
+    opt = $('<option value="2"></option>').data('feature', feature)
   })
 
-  test('review has feature', () => {
+  test('review has feature nyc', () => {
     expect.assertions(5)
+
+    Conf.set('nyc', true)
 
     const app = new App()
     
-    app.locationMgr.locator.geocoder.search = jest.fn()
+    app.locationMgrGeoclient.locator.geocoder.search = jest.fn()
 
-    $('#review').append(opt).val(1)
+    $('#review').append(opt).val(2)
 
-    expect($('.srch-ctl input').val()).toBe('')
-    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
+    expect($(app.locationMgrGeoclient.search.input).val()).toBe('')
+    expect($(app.locationMgrGeoclient.search.input).data('last-search')).toBeUndefined()
 
     app.review()
 
-    expect($('.srch-ctl input').val()).toBe('failed')
-    expect($('.srch-ctl input').data('last-search')).toBe('failed')
-    expect(app.locationMgr.locator.geocoder.search).toHaveBeenCalledTimes(1)
+    expect($(app.locationMgrGeoclient.search.input).val()).toBe('failed')
+    expect($(app.locationMgrGeoclient.search.input).data('last-search')).toBe('failed')
+    expect(app.locationMgrGeoclient.locator.geocoder.search).toHaveBeenCalledTimes(1)
+  })
+
+  test('review has feature census', () => {
+    expect.assertions(5)
+
+    Conf.set('nyc', false)
+
+    const app = new App()
+    
+    app.locationMgrCensus.locator.geocoder.search = jest.fn()
+
+    $('#review').append(opt).val(2)
+
+    expect($(app.locationMgrCensus.search.input).val()).toBe('')
+    expect($(app.locationMgrCensus.search.input).data('last-search')).toBeUndefined()
+
+    app.review()
+
+    expect($(app.locationMgrCensus.search.input).val()).toBe('failed')
+    expect($(app.locationMgrCensus.search.input).data('last-search')).toBe('failed')
+    expect(app.locationMgrCensus.locator.geocoder.search).toHaveBeenCalledTimes(1)
   })
 
   test('review no feature', () => {
     expect.assertions(5)
 
+    
     const app = new App()
     
-    app.locationMgr.locator.geocoder.search = jest.fn()
+    app.locationMgrCensus.locator.geocoder.search = jest.fn()
 
-    $('#review').append(opt)
+    $('#review').append(opt).val(-1)
 
-    expect($('.srch-ctl input').val()).toBe('')
-    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
+    expect($(app.locationMgrCensus.search.input).val()).toBe('')
+    expect($(app.locationMgrCensus.search.input).data('last-search')).toBeUndefined()
 
     app.review()
 
-    expect($('.srch-ctl input').val()).toBe('')
-    expect($('.srch-ctl input').data('last-search')).toBeUndefined()
-    expect(app.locationMgr.locator.geocoder.search).toHaveBeenCalledTimes(0)
+    expect($(app.locationMgrCensus.search.input).val()).toBe('')
+    expect($(app.locationMgrCensus.search.input).data('last-search')).toBeUndefined()
+    expect(app.locationMgrCensus.locator.geocoder.search).toHaveBeenCalledTimes(0)
   })
 })
 
 describe('download', () => {
   const saveGeoJson = LocalStorage.prototype.saveGeoJson
-  const f0 = new Feature({_row_index: 0, X: 982037, Y: 197460, LAT: 40.70865853, LNG: -74.00798212, _input: '59 maiden', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
-  const f1 = new Feature({_row_index: 1, X: 986121, Y: 216099, LAT: 40.75981807, LNG: -73.99324627, _input: '433 w43, mn', _geocodeResp: {}, _columns: [], _row_data: [], _source: {}})
+  const f0 = new Feature({_row_num: 0, X: 982037, Y: 197460, LAT: 40.70865853, LNG: -74.00798212, _input: '59 maiden', _geocodeResp: {}, _columns: [], _cells: [], _source: {}})
+  const f1 = new Feature({_row_num: 1, X: 986121, Y: 216099, LAT: 40.75981807, LNG: -73.99324627, _input: '433 w43, mn', _geocodeResp: {}, _columns: [], _cells: [], _source: {}})
 beforeEach(() => {
     f0.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f0.get('X'), f0.get('Y')])))
     f1.setGeometry(new Point(proj4('EPSG:2263', 'EPSG:3857', [f1.get('X'), f1.get('Y')])))

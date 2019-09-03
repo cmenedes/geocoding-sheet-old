@@ -49,9 +49,9 @@ const getGeocodedFeatures = interactive => {
     } else {
     feature.set('_geocodeResp', getGeocodeResp(false, props, interactive))
     feature.set('boro', interactive ? 1 : '')
-      feature.set('_row_index', i) 
+      feature.set('_row_num', i) 
       feature.set('_columns', MockData.GEOCODED_SHEET_PROJECT[0]) 
-      feature.set('_row_data', MockData.GEOCODED_SHEET_PROJECT[i + 1])
+      feature.set('_cells', MockData.GEOCODED_SHEET_PROJECT[i + 1])
       feature.set('_interactive', true)
     }
     features.push(feature)
@@ -240,8 +240,8 @@ describe('gotData', () => {
         assemblyDistrict: feature.get('assemblyDistrict'),
         bbl: feature.get('bbl'),
         _columns: sheet[0],
-        _row_data: sheet[i + 1],
-        _row_index: i + 1
+        _cells: sheet[i + 1],
+        _row_num: i + 1
       })
     })
   }

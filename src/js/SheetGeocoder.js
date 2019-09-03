@@ -35,48 +35,43 @@ class SheetGeocoder extends EventHandling {
   }
   gotData(data) {
     const columns = data[0]
+    const source = this.source
     if (this.geocodeAll) {
       this.countDown = data.length - 1
       this.source.clear()
       this.geocodedBounds = null
       this.trigger('batch-start', data)
     }
-    console.warn('gotData', data);
     data.forEach((row, i) => {
       if (i > 0) {
-        const source = this.source
-        const featureSource = {_row_index: i, _columns: columns, _row_data: row}
-        let feature = source.getFeatureById(i - 1)
+        const featureSource = {_row_num: i + 1, _columns: columns, _cells: row}
+        let feature = source.getFeatureById(i + 1)
         columns.forEach((col, c) => {
           featureSource[col] = row[c]
         })
         if (this.doGeocode(featureSource, feature)) {
-          console.warn('doGeocode', featureSource);
           if (feature) {
             source.removeFeature(feature)
           }
           feature = new Feature(featureSource)
-          feature.setId(i)
+          feature.setId(i + 1)
           feature.set('_interactive', !this.geocodeAll)
           source.addFeature(feature)
-          feature.once('change', $.proxy(this.geocoded, this))
+          feature.once('change', $.proxy(this.geocoded, this))          
           this.format.setGeometry(feature, featureSource)
         }        
       }
     })
   }
   geocoded(event) {
-
-    console.warn('geocoded fid',event.target.getId());
-    
     const feature = event.target;
     const geom = feature.getGeometry()
     const id = feature.getId()
     const data = {
       projected: this.projection,
-      row: feature.get('_row_index'),
+      row: feature.get('_row_num'),
       columns: feature.get('_columns'),
-      cells: feature.get('_row_data'),
+      cells: feature.get('_cells'),
       geocodeResp: feature.get('_geocodeResp'),
       name: feature.get('_geocodeResp').name,
       requestedFields: this.requestedFields,
@@ -95,7 +90,6 @@ class SheetGeocoder extends EventHandling {
     } else {
       this.trigger('ambiguous', {feature, data})
     }
-    //errorCount()        
     if (this.geocodeAll && this.countDown === 0) {
       this.geocodeAll = false
       this.trigger('batch-end')
@@ -110,9 +104,7 @@ class SheetGeocoder extends EventHandling {
     }
   }
   updateFeature(data) {
-    const feature = this.source.getFeatureById(data.row - 1)
-    console.warn('updateFeature', data)
-    console.warn('updateFeature', feature)
+    const feature = this.source.getFeatureById(data.row)
     if (feature) {
       const columns = data.columns
       for (let i = 0; i < columns.length; i++) {
