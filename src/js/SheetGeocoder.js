@@ -50,9 +50,8 @@ class SheetGeocoder extends EventHandling {
         columns.forEach((col, c) => {
           featureSource[col] = row[c]
         })
-        console.warn('gotData', featureSource);
-        
         if (this.doGeocode(featureSource, feature)) {
+          console.warn('doGeocode', featureSource);
           if (feature) {
             source.removeFeature(feature)
           }
