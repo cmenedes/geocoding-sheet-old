@@ -41,6 +41,7 @@ class SheetGeocoder extends EventHandling {
       this.geocodedBounds = null
       this.trigger('batch-start', data)
     }
+    console.warn('gotData', data);
     data.forEach((row, i) => {
       if (i > 0) {
         const source = this.source
@@ -49,6 +50,8 @@ class SheetGeocoder extends EventHandling {
         columns.forEach((col, c) => {
           featureSource[col] = row[c]
         })
+        console.warn('gotData', featureSource);
+        
         if (this.doGeocode(featureSource, feature)) {
           if (feature) {
             source.removeFeature(feature)
@@ -106,8 +109,8 @@ class SheetGeocoder extends EventHandling {
   }
   updateFeature(data) {
     const feature = this.source.getFeatureById(data.row - 1)
-    console.warn(data)
-    console.warn(feature)
+    console.warn('updateFeature', data)
+    console.warn('updateFeature', feature)
     if (feature) {
       const columns = data.columns
       for (let i = 0; i < columns.length; i++) {
