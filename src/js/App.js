@@ -196,11 +196,15 @@ class App {
     this.osm.setVisible(!nyc)
     $(this.searchCtrls.get(0))[nyc ? 'hide' : 'show']()
     $(this.searchCtrls.get(1))[nyc ? 'show' : 'hide']()
-  if (Conf.valid()) {
+    if (Conf.valid()) {
       this.sheetGeocoder.clear()
       this.sheetGeocoder.projection = nyc ? 'EPSG:2263' : ''
       this.sheetGeocoder.conf(Conf.get())
       this.geoclient.url = this.geoclientUrl()
+      if (this.onInterval.val().length) {
+        this.tabbs.open('#tab-map')
+        this.getData(false)
+      }
     }
   }
   geoclientUrl() {
