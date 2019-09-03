@@ -171,7 +171,7 @@ describe('hookup', () => {
   })
 
   test('hookup (called from constructor)', () => {
-    expect.assertions(18)
+    expect.assertions(19)
 
     const app = new App()
 
@@ -186,6 +186,9 @@ describe('hookup', () => {
     
     app.geoApi.trigger('change')
     expect(app.update).toHaveBeenCalledTimes(3)
+
+    app.onInterval.trigger('change')
+    expect(app.update).toHaveBeenCalledTimes(4)
 
     $('#geocode').trigger('click')
     expect(app.sheetGeocoder.getData).toHaveBeenCalledTimes(1)
@@ -209,7 +212,7 @@ describe('hookup', () => {
     expect(app.download).toHaveBeenCalledTimes(1)
 
     $($('#tab-conf input').get(0)).trigger('keyup')
-    expect(app.update).toHaveBeenCalledTimes(4)
+    expect(app.update).toHaveBeenCalledTimes(5)
   
     $(window).trigger('resize')
     expect(app.setMapSize).toHaveBeenCalledTimes(2)
@@ -285,20 +288,26 @@ describe('setup', () => {
   const setup = App.prototype.setup
   const clear = SheetGeocoder.prototype.clear
   const conf = SheetGeocoder.prototype.conf
+  const open = Tabs.prototype.open
+  const _getData = App.prototype.getData
 
   beforeEach(() => {
+    Tabs.prototype.open = jest.fn()
     App.prototype.setup = jest.fn()
+    App.prototype.getData = jest.fn()
     SheetGeocoder.prototype.clear = jest.fn()
     SheetGeocoder.prototype.conf = jest.fn()
   })
   afterEach(() => {
     App.prototype.setup = setup
+    App.prototype.getData = _getData
     SheetGeocoder.prototype.clear = clear
     SheetGeocoder.prototype.conf = conf
+    Tabs.prototype.open = open
   })
 
   test('setup is valid and is nyc', () => {
-    expect.assertions(10)
+    expect.assertions(12)
 
     const app = new App()
     
@@ -318,10 +327,13 @@ describe('setup', () => {
     expect(app.sheetGeocoder.projection).toBe('EPSG:2263')
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
     expect(app.geoclient.url).toBe('mock-geoclient-url/search.json?app_id=mock-id&app_key=mock-key&input=')
+  
+    expect(app.tabs.open).toHaveBeenCalledTimes(2)
+    expect(app.getData).toHaveBeenCalledTimes(0)
   })
 
-  test('setup is valid and is not nyc', () => {
-    expect.assertions(10)
+  test('setup is valid and is not nyc - on interval', () => {
+    expect.assertions(14)
 
     Object.keys(confCensus).forEach(key => {
       Conf.set(key, confCensus[key])
@@ -329,6 +341,8 @@ describe('setup', () => {
     
     const app = new App()
     
+    app.onInterval.val(app.onInterval.choices)
+
     expect(app.sheetGeocoder.clear).toHaveBeenCalledTimes(1)
     
     app.setup = setup
@@ -345,6 +359,12 @@ describe('setup', () => {
     expect(app.sheetGeocoder.projection).toBe('')
     expect(app.sheetGeocoder.conf).toHaveBeenCalledTimes(1)
     expect(app.geoclient.url).toBe('/search.json?app_id=&app_key=&input=')
+
+    expect(app.tabs.open).toHaveBeenCalledTimes(3)
+    expect(app.tabs.open.mock.calls[2][0]).toBe('#tab-map')
+  
+    expect(app.getData).toHaveBeenCalledTimes(1)
+    expect(app.getData.mock.calls[0][0]).toBe(false)
   })
 
   test('setup not valid', () => {

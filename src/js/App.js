@@ -98,6 +98,7 @@ class App {
     this.sheetGeocoder.on('batch-end', this.zoom, this)
     this.sheetGeocoder.on('geocoded', this.syncFeature, this)
     this.sheetGeocoder.on('ambiguous', this.ambiguous, this)
+    this.onInterval.on('change', this.update, this)
     this.update()
     if (Conf.valid()) {
       this.tabs.open('#tab-map')
@@ -202,7 +203,7 @@ class App {
       this.sheetGeocoder.conf(Conf.get())
       this.geoclient.url = this.geoclientUrl()
       if (this.onInterval.val().length) {
-        this.tabbs.open('#tab-map')
+        this.tabs.open('#tab-map')
         this.getData(false)
       }
     }
