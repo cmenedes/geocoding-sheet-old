@@ -122,12 +122,15 @@ class App {
       } else {
         opt.html(optHtml)
       }
-      $($('#review option').get(0)).html(`Review ${$('#review option').length - 1} Failures`)
+      this.reviewMsg()
     }
   }
   syncFeature(event) {
-    const feature = event.feature
-    $(`#review option[value="${feature.getId()}"]`).remove()
+    $(`#review option[value="${event.feature.getId()}"]`).remove()
+    this.reviewMsg()
+  }
+  reviewMsg() {
+    $($('#review option').get(0)).html(`Review ${$('#review option').length - 1} Failures`)
   }
   zoom() {
     const map = this.map
