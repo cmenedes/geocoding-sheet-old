@@ -1,6 +1,6 @@
 {
   "name": "geocoding-sheet",
-  "version": "14.1.2",
+  "version": "14.1.3",
   "description": "",
   "main": "",
   "scripts": {
@@ -11,7 +11,8 @@
     "build": "webpack",
     "prebuild": "./gcp-clean.sh && yarn test && yarn roll-css",
     "roll-css": "./node_modules/nyc-lib/css/roll-css.sh ./src/css/geocoding-sheet.theme.css ./src/css/geocoding-sheet.css",
-    "postbuild": "node pkg-addon"
+    "postbuild": "node pkg-addon",
+    "postinstall": "chmod +x *.sh"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,7 @@
   "homepage": "https://github.com/timkeane/geocoding-sheet#readme",
   "dependencies": {
     "jquery": "^3.4.1",
-    "nyc-lib": "^1.3.63",
+    "nyc-lib": "../nyc-lib/dist",
     "ol": "^5.3.3",
     "papaparse": "^5.0.2",
     "proj4": "^2.5.0"

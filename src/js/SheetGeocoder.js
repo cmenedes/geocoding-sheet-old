@@ -84,7 +84,7 @@ class SheetGeocoder extends EventHandling {
     }
     if (this.geocodeAll) this.countDown--
     if (geom) {
-    const ext = geom.getExtent()
+      const ext = geom.getExtent()
       const coords = geom.getCoordinates()
       const ll = proj4('EPSG:3857', 'EPSG:4326', coords)
       data.lng = ll[0]
